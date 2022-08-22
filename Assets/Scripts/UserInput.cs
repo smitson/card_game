@@ -86,41 +86,13 @@ public class UserInput : MonoBehaviour
     void Card(GameObject selected)
     {
         // card click actions
+        // if card is selected need to chck it against the second card clicked
+        
         print("Clicked on Card");
 
-        if (!selected.GetComponent<Selectable>().faceUp) // if the card clicked on is facedown
-        {
-            if (!Blocked(selected)) // if the card clicked on is not blocked
-            {
-                // flip it over
-                selected.GetComponent<Selectable>().faceUp = true;
-                slot1 = this.gameObject;
-            }
-
-        }
-        else if (selected.GetComponent<Selectable>().inDeckPile) // if the card clicked on is in the deck pile with the trips
-        {
-            // if it is not blocked
-            if (!Blocked(selected))
-            {
-                if (slot1 == selected) // if the same card is clicked twice
-                {
-                    if (DoubleClick())
-                    {
-                        // attempt auto stack
-                        AutoStack(selected);
-                    }
-                }
-                else
-                {
-                    slot1 = selected;
-                }                
-            }
-
-        }
-        else
-        {
-
+        // if it is not blocked
+        //TODO remove blocked 
+            
             // if the card is face up
             // if there is no card currently selected
             // select the card
@@ -155,7 +127,7 @@ public class UserInput : MonoBehaviour
             }
 
 
-        }
+        
     }
     void Top(GameObject selected)
     {
