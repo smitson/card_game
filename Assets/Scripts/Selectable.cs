@@ -8,8 +8,6 @@ public class Selectable : MonoBehaviour
     public string suit;
     public int value;
     public int row;
-    public bool faceUp = false;
-    public bool inDeckPile = false;
 
     private string valueString;
 

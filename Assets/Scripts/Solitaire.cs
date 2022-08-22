@@ -212,27 +212,9 @@ public class Solitaire : MonoBehaviour
 
                 newTopCard.name = card;
                 tripsOnDisplay.Add(card);
-                newTopCard.GetComponent<Selectable>().faceUp = true;
-                newTopCard.GetComponent<Selectable>().inDeckPile = true;
             }
             deckLocation++;
 
         }
-        else
-        {
-            //Restack the top deck
-            RestackTopDeck();
-        }
-    }
-
-    void RestackTopDeck()
-    {
-        deck.Clear();
-        foreach (string card in discardPile)
-        {
-            deck.Add(card);
-        }
-        discardPile.Clear();
-        SortDeckIntoTrips();
     }
 }
