@@ -13,12 +13,12 @@ public class Solitaire : MonoBehaviour
 
     public static string[] suits = new string[] { "C", "D", "H", "S" };
     public static string[] values = new string[] { "A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K" };
-    public List<string>[] tops;
-    public List<string> tripsOnDisplay = new List<string>();
-    public List<List<string>> deckTrips = new List<List<string>>();
+
+    public List<string> DealtCards = new List<string>();
 
     public List<string> deck;
-    public List<string> discardPile = new List<string>();
+    public List<string> dealDeck;
+
     private int deckLocation;
     private int cardXLocation = 0;
     private int cardYLocation = 0;
@@ -84,19 +84,27 @@ public class Solitaire : MonoBehaviour
     
     public void DealFromDeck()
     {
+        //if (NewDeck.Count == 0)
+        //{
+        //    dealDeck == deck;        
+        //} 
+        //else
+        //{
+        //    dealDeck == NewDeck;
+        // }
         
         string card = deck[deckLocation]; 
         {
             print("card");
-            //TODO XOFFSET each card position is 2 need to only deal one card at a time 
+
             float xOffset = -4.0f + ((cardXLocation * 2) + 0.01f);
             float yOffset = 3.0f + -(cardYLocation * 3);
             float zOffset = 0.2f;
 
-            GameObject newTopCard = Instantiate(cardPrefab, new Vector3(xOffset, yOffset, zOffset), Quaternion.identity, deckButton.transform);
+            GameObject newCard = Instantiate(cardPrefab, new Vector3(xOffset, yOffset, zOffset), Quaternion.identity, deckButton.transform);
 
-            newTopCard.name = card;
-            tripsOnDisplay.Add(card);
+            newCard.name = card;
+            DealtCards.Add(card);
             
             cardXLocation ++;
             if (cardXLocation > cardRow)

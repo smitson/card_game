@@ -134,19 +134,13 @@ public class UserInput : MonoBehaviour
 
     void Stack(GameObject selected)
     {
-        // if on top of king or empty bottom stack the cards in place
-        // else stack the cards with a negative y offset
+        //TODO put new card on top and then redeal
 
         Selectable s1 = slot1.GetComponent<Selectable>();
         Selectable s2 = selected.GetComponent<Selectable>();
-        float yOffset = 0.3f;
+        
 
-        if (s2.top || (!s2.top && s1.value == 13))
-        {
-            yOffset = 0;
-        }
-
-        slot1.transform.position = new Vector3(selected.transform.position.x, selected.transform.position.y - yOffset, selected.transform.position.z - 0.01f);
+        slot1.transform.position = new Vector3(selected.transform.position.x, selected.transform.position.y, selected.transform.position.z );
         slot1.transform.parent = selected.transform; // this makes the children move with the parents
 
         if (s1.top && s2.top && s1.value == 1) // allows movement of cards between top spots
