@@ -97,6 +97,7 @@ public class Solitaire : MonoBehaviour
 
             newTopCard.name = card;
             tripsOnDisplay.Add(card);
+            
             cardXLocation ++;
             if (cardXLocation > cardRow)
             {
