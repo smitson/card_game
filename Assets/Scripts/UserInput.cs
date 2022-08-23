@@ -149,11 +149,7 @@ public class UserInput : MonoBehaviour
         slot1.transform.position = new Vector3(selected.transform.position.x, selected.transform.position.y - yOffset, selected.transform.position.z - 0.01f);
         slot1.transform.parent = selected.transform; // this makes the children move with the parents
 
-        if (s1.inDeckPile) // removes the cards from the top pile to prevent duplicate cards
-        {
-            solitaire.tripsOnDisplay.Remove(slot1.name);
-        }
-        else if (s1.top && s2.top && s1.value == 1) // allows movement of cards between top spots
+        if (s1.top && s2.top && s1.value == 1) // allows movement of cards between top spots
         {
             solitaire.topPos[s1.row].GetComponent<Selectable>().value = 0;
             solitaire.topPos[s1.row].GetComponent<Selectable>().suit = null;
@@ -162,12 +158,6 @@ public class UserInput : MonoBehaviour
         {
             solitaire.topPos[s1.row].GetComponent<Selectable>().value = s1.value - 1;
         }
-        else // removes the card string from the appropriate bottom list
-        {
-            solitaire.bottoms[s1.row].Remove(slot1.name);
-        }
-
-        s1.inDeckPile = false; // you cannot add cards to the trips pile so this is always fine
         s1.row = s2.row;
 
         if (s2.top) // moves a card to the top and assigns the top's value and suit
