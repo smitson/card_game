@@ -80,9 +80,6 @@ public class UserInput : MonoBehaviour
         
         print("Clicked on Card");
 
-        // if it is not blocked
-        //TODO remove blocked 
-            
             // if the card is face up
             // if there is no card currently selected
             // select the card
@@ -189,33 +186,7 @@ public class UserInput : MonoBehaviour
 
     }
 
-    bool Blocked(GameObject selected)
-    {
-        Selectable s2 = selected.GetComponent<Selectable>();
-        if (s2.inDeckPile == true)
-        {
-            if (s2.name == solitaire.tripsOnDisplay.Last()) // if it is the last trip it is not blocked
-            {
-                return false;
-            }
-            else
-            {
-                print(s2.name + " is blocked by " + solitaire.tripsOnDisplay.Last());
-                return true;
-            }
-        }
-        else
-        {
-            if (s2.name == solitaire.bottoms[s2.row].Last()) // check if it is the bottom card
-            {
-                return false;
-            }
-            else
-            {
-                return true;
-            }
-        }
-    }
+    
 
     bool DoubleClick()
     {
