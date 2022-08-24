@@ -73,6 +73,7 @@ public class UserInput : MonoBehaviour
         slot1 = this.gameObject;
 
     }
+    
     void Card(GameObject selected)
     {
         // card click actions
@@ -96,6 +97,7 @@ public class UserInput : MonoBehaviour
                 if (Stackable(selected))
                 {
                     Stack(selected);
+                    //TODO if stacked remove the bottom card from the array 
                 }
                 else
                 {
@@ -134,7 +136,7 @@ public class UserInput : MonoBehaviour
 
     void Stack(GameObject selected)
     {
-        //TODO put new card on top and then redeal
+        //TODO put new card on top and then redeal also remove card from dealtList array use dealtList.Remove()
 
         Selectable s1 = slot1.GetComponent<Selectable>();
         Selectable s2 = selected.GetComponent<Selectable>();

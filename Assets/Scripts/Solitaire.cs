@@ -14,19 +14,18 @@ public class Solitaire : MonoBehaviour
     public static string[] suits = new string[] { "C", "D", "H", "S" };
     public static string[] values = new string[] { "A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K" };
 
+    public static float[] cardXEvenlocs = new float[] {-4.0f, -2.0f, 0.0f, 2.0f, 4.0f, 6.0f};
+    public static float[] cardXOddlocs = new float[] {6.0f, 4.0f, 2.0f, 0.0f, -2.0f, -4.0f};
+    
+    public static float[] cardYLocations = new float[] {3.0f, 0.0f, -3.0f, -6.0f, -9.0f, -12.0f, -15.0f, -18.0f, -12.0f};
+
     public List<string> DealtCards = new List<string>();
 
     public List<string> deck;
     public List<string> dealDeck;
 
-    private int deckLocation;
-    private int cardXLocation = 0;
-    private int cardYLocation = 0;
     private int cardRow = 6;
-    private int trips;
-    private int tripsRemainder;
-
-
+    private int deckLocation = 0;
 
     // Start is called before the first frame update
     void Start()
@@ -84,37 +83,39 @@ public class Solitaire : MonoBehaviour
     
     public void DealFromDeck()
     {
-        //if (NewDeck.Count == 0)
-        //{
-        //    dealDeck == deck;        
-        //} 
-        //else
-        //{
-        //    dealDeck == NewDeck;
-        // }
-        
+
         string card = deck[deckLocation]; 
         {
             print("card");
+            
+            DealtCards.Add(card);
 
-            float xOffset = -4.0f + ((cardXLocation * 2) + 0.01f);
-            float yOffset = 3.0f + -(cardYLocation * 3);
+            
+            int xLoc = (deckLocation % cardRow);
+            int yLoc = (deckLocation / cardRow);
+
+            float xOffset;
+
+            if(yLoc%2 == 0)
+            {
+                xOffset = cardXEvenlocs[xLoc];
+            }        
+            else
+            {
+                xOffset = cardXOddlocs[xLoc];
+            }    
+            
+            float yOffset = cardYLocations[yLoc];
+
             float zOffset = 0.2f;
 
             GameObject newCard = Instantiate(cardPrefab, new Vector3(xOffset, yOffset, zOffset), Quaternion.identity, deckButton.transform);
 
             newCard.name = card;
-            DealtCards.Add(card);
-            
-            cardXLocation ++;
-            if (cardXLocation > cardRow)
-            {
-                cardXLocation = 0;
-                cardYLocation++;
-            }
-        }
-        deckLocation++;
-
         
-    }
+            //TODO if its new card increment deckLocation - if it is at the end then we need to access endGame option  
+
+            deckLocation++;
+        }
+    }    
 }
