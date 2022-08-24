@@ -19,7 +19,7 @@ public class Solitaire : MonoBehaviour
     
     public static float[] cardYLocations = new float[] {3.0f, 0.0f, -3.0f, -6.0f, -9.0f, -12.0f, -15.0f, -18.0f, -12.0f};
 
-    public List<string> DealtCards = new List<string>();
+    public List<string> dealtCards = new List<string>();
 
     public List<string> deck;
     public List<string> dealDeck;
@@ -83,39 +83,70 @@ public class Solitaire : MonoBehaviour
     
     public void DealFromDeck()
     {
+        string card; 
+        int yLoc;
+        int xLoc;
+        float xOffset, yOffset, zOffset = 0.2f;;
+            
+        card = deck[deckLocation];   
+        
+        xLoc = (deckLocation % cardRow);
+        yLoc = (deckLocation / cardRow);
+            
+        dealtCards.Add(card);     
+        
 
-        string card = deck[deckLocation]; 
+        if(yLoc%2 == 0)
         {
-            print("card");
+            xOffset = cardXEvenlocs[xLoc];
+        }        
+        else
+        {
+            xOffset = cardXOddlocs[xLoc];
+        }    
             
-            DealtCards.Add(card);
+        yOffset = cardYLocations[yLoc];
 
+
+        GameObject newCard = Instantiate(cardPrefab, new Vector3(xOffset, yOffset, zOffset), Quaternion.identity, deckButton.transform);
+
+        newCard.name = card;
+
+        
+        //TODO if it is at the end then we need to access endGame option and hide pack   
+
+        deckLocation++;
+        
+    }    
+
+    public void MoveCards()
+    {
+        //TODO WIP
+        int yLoc;
+        int xLoc;
+        float xOffset, yOffset, zOffset = 0.2f;
+        int count = 0;
+        GameObject nextCard;          
+       
             
-            int xLoc = (deckLocation % cardRow);
-            int yLoc = (deckLocation / cardRow);
-
-            float xOffset;
-
+        foreach (string card in dealtCards)
+        {
+            nextCard = GameObject.Find(card);
+            xLoc = (count % cardRow);
+            yLoc = (count / cardRow);
+            
             if(yLoc%2 == 0)
             {
                 xOffset = cardXEvenlocs[xLoc];
             }        
             else
             {
-                xOffset = cardXOddlocs[xLoc];
+            xOffset = cardXOddlocs[xLoc];
             }    
             
-            float yOffset = cardYLocations[yLoc];
-
-            float zOffset = 0.2f;
-
-            GameObject newCard = Instantiate(cardPrefab, new Vector3(xOffset, yOffset, zOffset), Quaternion.identity, deckButton.transform);
-
-            newCard.name = card;
-        
-            //TODO if its new card increment deckLocation - if it is at the end then we need to access endGame option  
-
-            deckLocation++;
+            yOffset = cardYLocations[yLoc];
+            nextCard.transform.position = new Vector3( xOffset, yOffset, zOffset);
+            count++;
         }
-    }    
+    }
 }

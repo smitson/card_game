@@ -59,6 +59,7 @@ public class UserInput : MonoBehaviour
                 else if (hit.collider.CompareTag("Card"))
                 {
                     // clicked card
+
                     Card(hit.collider.gameObject);
                 }
             }
@@ -80,10 +81,6 @@ public class UserInput : MonoBehaviour
         // if card is selected need to chck it against the second card clicked
         
         print("Clicked on Card");
-
-            // if the card is face up
-            // if there is no card currently selected
-            // select the card
 
             if (slot1 == this.gameObject) // not null because we pass in this gameObject instead
             {
@@ -141,39 +138,21 @@ public class UserInput : MonoBehaviour
         Selectable s1 = slot1.GetComponent<Selectable>();
         Selectable s2 = selected.GetComponent<Selectable>();
         
+//TODO need to copy this into reshuffle so for cards in loop make the new Vector3
 
         slot1.transform.position = new Vector3(selected.transform.position.x, selected.transform.position.y, selected.transform.position.z );
-        slot1.transform.parent = selected.transform; // this makes the children move with the parents
 
-        if (s1.top && s2.top && s1.value == 1) // allows movement of cards between top spots
-        {
-            solitaire.topPos[s1.row].GetComponent<Selectable>().value = 0;
-            solitaire.topPos[s1.row].GetComponent<Selectable>().suit = null;
-        }
-        else if (s1.top) // keeps track of the current value of the top decks as a card has been removed
-        {
-            solitaire.topPos[s1.row].GetComponent<Selectable>().value = s1.value - 1;
-        }
-        s1.row = s2.row;
+        string cardName = s1.name;
 
-        if (s2.top) // moves a card to the top and assigns the top's value and suit
-        {
-            solitaire.topPos[s1.row].GetComponent<Selectable>().value = s1.value;
-            solitaire.topPos[s1.row].GetComponent<Selectable>().suit = s1.suit;
-            s1.top = true;
-        }
-        else
-        {
-            s1.top = false;
-        }
+        solitaire.dealtCards.Remove(cardName);   
+        solitaire.MoveCards();
 
         // after completing move reset slot1 to be essentially null as being null will break the logic
         slot1 = this.gameObject;
 
     }
-
     
-
+    
     bool DoubleClick()
     {
         if (timer < doubleClickTime && clickCount == 2)
@@ -187,7 +166,7 @@ public class UserInput : MonoBehaviour
         }
     }
 
-    void AutoStack(GameObject selected)
+    void AutoStack(GameObject selected) //TODO
     {
         for (int i = 0; i < solitaire.topPos.Length; i++)
         {

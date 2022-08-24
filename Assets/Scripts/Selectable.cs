@@ -4,15 +4,12 @@ using UnityEngine;
 
 public class Selectable : MonoBehaviour
 {
-    //TODO do we need an x and y location and hold it when dealt for redrawing after moving cards  
-
+  
     public bool top = false;
     public string suit;
     public int value;
     public int row;
     public int dealtLocation;
-    public int xLoc;
-    public int yLoc;
 
 
     private string valueString;
