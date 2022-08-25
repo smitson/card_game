@@ -26,6 +26,7 @@ public class Solitaire : MonoBehaviour
 
     private int cardRow = 6;
     private int deckLocation = 0;
+    private int CardDealt = 0;
 
     // Start is called before the first frame update
     void Start()
@@ -88,7 +89,7 @@ public class Solitaire : MonoBehaviour
         int xLoc;
         float xOffset, yOffset, zOffset = 0.2f;;
             
-        card = deck[deckLocation];   
+        card = deck[CardDealt];   
         
         xLoc = (deckLocation % cardRow);
         yLoc = (deckLocation / cardRow);
@@ -116,6 +117,7 @@ public class Solitaire : MonoBehaviour
         //TODO if it is at the end then we need to access endGame option and hide pack   
 
         deckLocation++;
+        CardDealt++;
         
     }    
 
@@ -126,6 +128,7 @@ public class Solitaire : MonoBehaviour
         int xLoc;
         float xOffset, yOffset, zOffset = 0.2f;
         int count = 0;
+        deckLocation = 0;
         GameObject nextCard;          
        
             
@@ -147,6 +150,7 @@ public class Solitaire : MonoBehaviour
             yOffset = cardYLocations[yLoc];
             nextCard.transform.position = new Vector3( xOffset, yOffset, zOffset);
             count++;
+            deckLocation++;
         }
     }
 }

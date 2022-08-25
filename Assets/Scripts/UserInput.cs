@@ -133,19 +133,25 @@ public class UserInput : MonoBehaviour
 
     void Stack(GameObject selected)
     {
-        //TODO put new card on top and then redeal also remove card from dealtList array use dealtList.Remove()
-
+        
         Selectable s1 = slot1.GetComponent<Selectable>();
         Selectable s2 = selected.GetComponent<Selectable>();
         
-//TODO need to copy this into reshuffle so for cards in loop make the new Vector3
+        int listPos = 0;
+        
+        string cardName = s2.name;
 
-        slot1.transform.position = new Vector3(selected.transform.position.x, selected.transform.position.y, selected.transform.position.z );
-
-        string cardName = s1.name;
-
+        listPos = solitaire.dealtCards.IndexOf(cardName);   
         solitaire.dealtCards.Remove(cardName);   
+
+        Destroy(GameObject.Find(cardName));        
+
+        cardName = s1.name;
+        solitaire.dealtCards.Remove(cardName); 
+        solitaire.dealtCards.Insert(listPos,cardName); 
+
         solitaire.MoveCards();
+        
 
         // after completing move reset slot1 to be essentially null as being null will break the logic
         slot1 = this.gameObject;
