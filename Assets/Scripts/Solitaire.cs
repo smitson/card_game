@@ -113,7 +113,6 @@ public class Solitaire : MonoBehaviour
 
         newCard.name = card;
 
-        
         //TODO if it is at the end then we need to access endGame option and hide pack   
 
         deckLocation++;
@@ -149,6 +148,7 @@ public class Solitaire : MonoBehaviour
             
             yOffset = cardYLocations[yLoc];
             nextCard.transform.position = new Vector3( xOffset, yOffset, zOffset);
+            
             count++;
             deckLocation++;
         }

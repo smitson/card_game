@@ -92,7 +92,7 @@ public class UserInput : MonoBehaviour
             {
                 // if the new card is eligable to stack on the old card
                 if (Stackable(selected))
-                {
+                {    
                     Stack(selected);
                     //TODO if stacked remove the bottom card from the array 
                 }
@@ -118,11 +118,23 @@ public class UserInput : MonoBehaviour
     {
         Selectable s1 = slot1.GetComponent<Selectable>();
         Selectable s2 = selected.GetComponent<Selectable>();
+        int posOne, posTwo;
         // compare them to see if they stack
-
+        
+ 
         if (s1.suit == s2.suit || s1.value == s2.value )
         {
-           return true;
+           posOne = solitaire.dealtCards.IndexOf(s1.name); 
+           posTwo = solitaire.dealtCards.IndexOf(s2.name);
+           
+           if ((posOne - posTwo) == 2)
+           {
+                return true;
+           }
+           else
+           {
+                return false;
+           }
         }
         else
         {
@@ -139,19 +151,24 @@ public class UserInput : MonoBehaviour
         
         int listPos = 0;
         
-        string cardName = s2.name;
+        string cardName = s1.name;
 
-        listPos = solitaire.dealtCards.IndexOf(cardName);   
-        solitaire.dealtCards.Remove(cardName);   
+        listPos = solitaire.dealtCards.IndexOf(cardName);  
 
-        Destroy(GameObject.Find(cardName));        
+        if (listPos > 0)
+        {
+            listPos = listPos - 1;
+            cardName = solitaire.dealtCards[listPos];
+            solitaire.dealtCards.Remove(cardName);   
 
-        cardName = s1.name;
-        solitaire.dealtCards.Remove(cardName); 
-        solitaire.dealtCards.Insert(listPos,cardName); 
+            Destroy(GameObject.Find(cardName));        
 
-        solitaire.MoveCards();
-        
+            cardName = s1.name;
+            solitaire.dealtCards.Remove(cardName); 
+            solitaire.dealtCards.Insert(listPos,cardName); 
+
+            solitaire.MoveCards();
+        } 
 
         // after completing move reset slot1 to be essentially null as being null will break the logic
         slot1 = this.gameObject;

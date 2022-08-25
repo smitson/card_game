@@ -9,8 +9,6 @@ public class Selectable : MonoBehaviour
     public string suit;
     public int value;
     public int row;
-    public int dealtLocation;
-
 
     private string valueString;
 
