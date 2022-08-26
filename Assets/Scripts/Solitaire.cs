@@ -14,8 +14,8 @@ public class Solitaire : MonoBehaviour
     public static string[] suits = new string[] { "C", "D", "H", "S" };
     public static string[] values = new string[] { "A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K" };
 
-    public static float[] cardXEvenlocs = new float[] {-4.0f, -2.0f, 0.0f, 2.0f, 4.0f, 6.0f};
-    public static float[] cardXOddlocs = new float[] {6.0f, 4.0f, 2.0f, 0.0f, -2.0f, -4.0f};
+    public static float[] cardXEvenlocs = new float[] {-10.0f, -8.0f, -6.0f, -4.0f, -2.0f, 0.0f, 2.0f, 4.0f, 6.0f, 8.0f};
+    public static float[] cardXOddlocs = new float[] {8.0f, 6.0f, 4.0f, 2.0f, 0.0f, -2.0f, -4.0f, -6.0f, -8.0f,-10.0f};
     
     public static float[] cardYLocations = new float[] {3.0f, 0.0f, -3.0f, -6.0f, -9.0f, -12.0f, -15.0f, -18.0f, -12.0f};
 
@@ -24,7 +24,7 @@ public class Solitaire : MonoBehaviour
     public List<string> deck;
     public List<string> dealDeck;
 
-    private int cardRow = 6;
+    private int cardRow = 10;
     private int deckLocation = 0;
     private int CardDealt = 0;
 
@@ -42,6 +42,10 @@ public class Solitaire : MonoBehaviour
 
     public void PlayCards()
     {
+        deckLocation = 0;
+        CardDealt = 0;
+        dealtCards = new List<string>();
+
         deck = GenerateDeck();
         Shuffle(deck);
 
@@ -122,7 +126,6 @@ public class Solitaire : MonoBehaviour
 
     public void MoveCards()
     {
-        //TODO WIP
         int yLoc;
         int xLoc;
         float xOffset, yOffset, zOffset = 0.2f;
