@@ -113,7 +113,7 @@ public class UserInput : MonoBehaviour
 
         posMid = solitaire.dealtCards.IndexOf(s1.name); 
         
-        if (posMid > 0) //TODO and not at end of array AND TEST THE FOLLOWING
+        if (posMid > 0 && posMid < (solitaire.dealtCards.length -1)) //TODO TEST THE FOLLOWING
         {
             cardOne = solitaire.dealtCards[posMid - 1]
             cardTwo = solitaire.dealtCards[posMid + 1]
