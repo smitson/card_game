@@ -70,8 +70,9 @@ public class UserInput : MonoBehaviour
     {
         // deck click actions
         print("Clicked on deck");
+        //TODO dont deal if already dealt 52 cards or on 52nd card change pack so not visible
         solitaire.DealFromDeck();
-        slot1 = this.gameObject;
+        //TODO do we need this ?  slot1 = this.gameObject;
 
     }
     
@@ -90,7 +91,7 @@ public class UserInput : MonoBehaviour
             // if there is already a card selected (and it is not the same card)
             else if (slot1 != selected)
             {
-                // if the new card is eligable to stack on the old card
+                // if the new card is eligible to stack on the old card
                 if (Stackable(selected))
                 {    
                     Stack(selected);
@@ -119,7 +120,8 @@ public class UserInput : MonoBehaviour
         Selectable s1 = slot1.GetComponent<Selectable>();
         Selectable s2 = selected.GetComponent<Selectable>();
         int posOne, posTwo;
-        // compare them to see if they stack
+        
+        // TODO need cards either side of selected card so if card selected is position 3 need card in position 2 and card in position 4 
         
  
         if (s1.suit == s2.suit || s1.value == s2.value )
@@ -145,7 +147,8 @@ public class UserInput : MonoBehaviour
 
     void Stack(GameObject selected)
     {
-        
+        //TODO need to stack selected card on card one before
+
         Selectable s1 = slot1.GetComponent<Selectable>();
         Selectable s2 = selected.GetComponent<Selectable>();
         

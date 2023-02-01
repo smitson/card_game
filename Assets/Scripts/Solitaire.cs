@@ -8,6 +8,7 @@ public class Solitaire : MonoBehaviour
     public Sprite[] cardFaces;
     public GameObject cardPrefab;
     public GameObject deckButton;
+    public GameObject Deck;
     public GameObject[] bottomPos;
     public GameObject[] topPos;
 
@@ -26,7 +27,7 @@ public class Solitaire : MonoBehaviour
 
     private int cardRow = 10;
     private int deckLocation = 0;
-    private int CardDealt = 0;
+    private int cardDealt = 0;
 
     // Start is called before the first frame update
     void Start()
@@ -43,7 +44,7 @@ public class Solitaire : MonoBehaviour
     public void PlayCards()
     {
         deckLocation = 0;
-        CardDealt = 0;
+        cardDealt = 0;
         dealtCards = new List<string>();
 
         deck = GenerateDeck();
@@ -88,39 +89,49 @@ public class Solitaire : MonoBehaviour
     
     public void DealFromDeck()
     {
-        string card; 
-        int yLoc;
-        int xLoc;
-        float xOffset, yOffset, zOffset = 0.2f;;
+        if (cardDealt < 52)
+        { 
+            string card; 
+            int yLoc;
+            int xLoc;
+            float xOffset, yOffset, zOffset = 0.2f;
             
-        card = deck[CardDealt];   
+            card = deck[cardDealt];   
         
-        xLoc = (deckLocation % cardRow);
-        yLoc = (deckLocation / cardRow);
+            xLoc = (deckLocation % cardRow);
+            yLoc = (deckLocation / cardRow);
             
-        dealtCards.Add(card);     
+            dealtCards.Add(card);     
         
 
-        if(yLoc%2 == 0)
-        {
-            xOffset = cardXEvenlocs[xLoc];
-        }        
+            if(yLoc%2 == 0)
+            {
+                xOffset = cardXEvenlocs[xLoc];
+            }        
+            else
+            {
+                xOffset = cardXOddlocs[xLoc];
+            }    
+            
+            yOffset = cardYLocations[yLoc];
+
+
+            GameObject newCard = Instantiate(cardPrefab, new Vector3(xOffset, yOffset, zOffset), Quaternion.identity, deckButton.transform);
+
+            newCard.name = card;
+
+            deckLocation++;
+            cardDealt++;
+        }
         else
         {
-            xOffset = cardXOddlocs[xLoc];
-        }    
             
-        yOffset = cardYLocations[yLoc];
+            //Destroy(deckButton);
 
+            //TODO if it is at the end then we need to access endGame option and hide pack   
+            print("More than 52 cards dealt");    
 
-        GameObject newCard = Instantiate(cardPrefab, new Vector3(xOffset, yOffset, zOffset), Quaternion.identity, deckButton.transform);
-
-        newCard.name = card;
-
-        //TODO if it is at the end then we need to access endGame option and hide pack   
-
-        deckLocation++;
-        CardDealt++;
+        }
         
     }    
 
