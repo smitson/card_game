@@ -86,22 +86,12 @@ public class UserInput : MonoBehaviour
             if (slot1 == this.gameObject) // not null because we pass in this gameObject instead
             {
                 slot1 = selected;
-            }
-
-            // if there is already a card selected (and it is not the same card)
-            else if (slot1 != selected)
-            {
-                // if the new card is eligible to stack on the old card
                 if (Stackable(selected))
                 {    
                     Stack(selected);
                     //TODO if stacked remove the bottom card from the array 
                 }
-                else
-                {
-                    // select the new card
-                    slot1 = selected;
-                }
+                
             }
 
             else if (slot1 == selected) // if the same card is clicked twice
@@ -148,26 +138,28 @@ public class UserInput : MonoBehaviour
     {
         //TODO need to stack selected card on card one before
 
-        Selectable s1 = slot1.GetComponent<Selectable>();
         Selectable s2 = selected.GetComponent<Selectable>();
         
         int listPos = 0;
         
-        string cardName = s1.name;
+        string cardName = s2.name;
 
         listPos = solitaire.dealtCards.IndexOf(cardName);  
 
         if (listPos > 0)
         {
             listPos = listPos - 1;
-            cardName = solitaire.dealtCards[listPos];
-            solitaire.dealtCards.Remove(cardName);   
-
+            solitaire.dealCards.splice(listPos,1)
+            //cardName = solitaire.dealtCards[listPos];
+            //solitaire.dealtCards.Remove(cardName);   
+            //TODO add to a removed array or keep a copy of original dealt 
+            
             Destroy(GameObject.Find(cardName));        
 
-            cardName = s1.name;
-            solitaire.dealtCards.Remove(cardName); 
-            solitaire.dealtCards.Insert(listPos,cardName); 
+            //cardName = s2.name;
+            
+            //solitaire.dealtCards.Remove(cardName); 
+            //solitaire.dealtCards.Insert(listPos,cardName); 
 
             solitaire.MoveCards();
         } 
