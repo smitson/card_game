@@ -117,30 +117,29 @@ public class UserInput : MonoBehaviour
 
     bool Stackable(GameObject selected)
     {
-        Selectable s1 = slot1.GetComponent<Selectable>();
-        Selectable s2 = selected.GetComponent<Selectable>();
-        int posOne, posTwo;
+        Selectable s1 = selected.GetComponent<Selectable>();
+        int posMid;
+        string cardOne, cardTwo;
+
+        posMid = solitaire.dealtCards.IndexOf(s1.name); 
         
-        // TODO need cards either side of selected card so if card selected is position 3 need card in position 2 and card in position 4 
-        
- 
-        if (s1.suit == s2.suit || s1.value == s2.value )
+        if (posMid > 0) //TODO and not at end of array AND TEST THE FOLLOWING
         {
-           posOne = solitaire.dealtCards.IndexOf(s1.name); 
-           posTwo = solitaire.dealtCards.IndexOf(s2.name);
-           
-           if ((posOne - posTwo) == 2)
-           {
+            cardOne = solitaire.dealtCards[posMid - 1]
+            cardTwo = solitaire.dealtCards[posMid + 1]
+
+            if (cardOne.Substring(0,1) == cardTwo.Substring(0,1) || cardOne.Substring(1,1) == cardTwo.Substring(1,1))
+            {
                 return true;
-           }
-           else
-           {
+            }
+            else
+            {
                 return false;
-           }
+            }
         }
         else
         {
-           return false;
+            return false;
         }
              
     }
