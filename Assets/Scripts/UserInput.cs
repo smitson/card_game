@@ -113,10 +113,10 @@ public class UserInput : MonoBehaviour
 
         posMid = solitaire.dealtCards.IndexOf(s1.name); 
         
-        if (posMid > 0 && posMid < (solitaire.dealtCards.length -1)) //TODO TEST THE FOLLOWING
+        if (posMid > 0 && posMid < (solitaire.dealtCards.Count -1)) //TODO TEST THE FOLLOWING
         {
-            cardOne = solitaire.dealtCards[posMid - 1]
-            cardTwo = solitaire.dealtCards[posMid + 1]
+            cardOne = solitaire.dealtCards[posMid - 1];
+            cardTwo = solitaire.dealtCards[posMid + 1];
 
             if (cardOne.Substring(0,1) == cardTwo.Substring(0,1) || cardOne.Substring(1,1) == cardTwo.Substring(1,1))
             {
@@ -149,7 +149,8 @@ public class UserInput : MonoBehaviour
         if (listPos > 0)
         {
             listPos = listPos - 1;
-            solitaire.dealCards.splice(listPos,1)
+            cardName = solitaire.dealtCards[listPos];                    
+            solitaire.dealtCards.Remove(cardName);
             //cardName = solitaire.dealtCards[listPos];
             //solitaire.dealtCards.Remove(cardName);   
             //TODO add to a removed array or keep a copy of original dealt 
