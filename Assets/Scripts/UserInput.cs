@@ -91,6 +91,10 @@ public class UserInput : MonoBehaviour
                     Stack(selected);
                     //TODO if stacked remove the bottom card from the array 
                 }
+                else
+                {
+                    slot1 = this.gameObject;
+                }
                 
             }
 
@@ -113,7 +117,7 @@ public class UserInput : MonoBehaviour
 
         posMid = solitaire.dealtCards.IndexOf(s1.name); 
         
-        if (posMid > 0 && posMid < (solitaire.dealtCards.Count -1)) //TODO TEST THE FOLLOWING
+        if (posMid > 0 && posMid < (solitaire.dealtCards.Count -1)) 
         {
             cardOne = solitaire.dealtCards[posMid - 1];
             cardTwo = solitaire.dealtCards[posMid + 1];
@@ -149,18 +153,12 @@ public class UserInput : MonoBehaviour
         if (listPos > 0)
         {
             listPos = listPos - 1;
-            cardName = solitaire.dealtCards[listPos];                    
+            cardName = solitaire.dealtCards[listPos];     
+                        
+            solitaire.removedCards.Add(cardName,listPos);
             solitaire.dealtCards.Remove(cardName);
-            //cardName = solitaire.dealtCards[listPos];
-            //solitaire.dealtCards.Remove(cardName);   
-            //TODO add to a removed array or keep a copy of original dealt 
             
             Destroy(GameObject.Find(cardName));        
-
-            //cardName = s2.name;
-            
-            //solitaire.dealtCards.Remove(cardName); 
-            //solitaire.dealtCards.Insert(listPos,cardName); 
 
             solitaire.MoveCards();
         } 
