@@ -645,6 +645,7 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 543829c493437034e82b55092c673c30, type: 3}
   cardPrefab: {fileID: 4464249741575413216, guid: b383ff450473ace4cbbd85429fa03541, type: 3}
   deckButton: {fileID: 2131076928}
+  Deck: {fileID: 0}
   bottomPos:
   - {fileID: 0}
   - {fileID: 0}
@@ -1445,6 +1446,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Card
       objectReference: {fileID: 0}
+    - target: {fileID: 4464249741575413218, guid: b383ff450473ace4cbbd85429fa03541, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: fa045cd8f96ddbf4ca0443284f64e6bd, type: 3}
     - target: {fileID: 4464249741575413219, guid: b383ff450473ace4cbbd85429fa03541, type: 3}
       propertyPath: m_RootOrder
       value: 2

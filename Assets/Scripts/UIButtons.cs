@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+
 public class UIButtons : MonoBehaviour
 {
     public GameObject highScorePanel;
@@ -18,6 +19,15 @@ public class UIButtons : MonoBehaviour
         
     }
 
+    public void Undo()
+    {
+
+        //TODO create Undo process to be linekd to button
+        //  GameObject newCard = Instantiate(cardPrefab, new Vector3(xOffset, yOffset, zOffset), Quaternion.identity, deckButton.transform
+        //    newCard.name = card;
+
+    }
+
     public void PlayAgain()
     {
         highScorePanel.SetActive(false);
@@ -32,22 +42,8 @@ public class UIButtons : MonoBehaviour
         {
             Destroy(card.gameObject);
         }
-        ClearTopValues();
+
         // deal new cards
         FindObjectOfType<Solitaire>().PlayCards();
     }
-
-    void ClearTopValues()
-    {
-        Selectable[] selectables = FindObjectsOfType<Selectable>();
-        foreach (Selectable selectable in selectables)
-        {
-            if (selectable.CompareTag("Top"))
-            {
-                selectable.suit = null;
-                selectable.value = 0;
-            }
-        }
-    }
-
 }

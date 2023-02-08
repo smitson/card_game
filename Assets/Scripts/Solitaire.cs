@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
@@ -21,6 +21,8 @@ public class Solitaire : MonoBehaviour
     public static float[] cardYLocations = new float[] {3.0f, 0.0f, -3.0f, -6.0f, -9.0f, -12.0f, -15.0f, -18.0f, -12.0f};
 
     public List<string> dealtCards = new List<string>();
+
+    public Dictionary<string, int> removedCards = new Dictionary<string, int>();
 
     public List<string> deck;
     public List<string> dealDeck;
@@ -50,11 +52,8 @@ public class Solitaire : MonoBehaviour
         deck = GenerateDeck();
         Shuffle(deck);
 
-        //test the cards in the deck:
-        foreach (string card in deck)
-        {
-            print(card);
-        }
+        deckButton.GetComponent<Renderer>().enabled = true;
+        
     }
 
 
@@ -85,8 +84,7 @@ public class Solitaire : MonoBehaviour
         }
     }
 
-   
-    
+ 
     public void DealFromDeck()
     {
         if (cardDealt < 52)
@@ -125,12 +123,8 @@ public class Solitaire : MonoBehaviour
         }
         else
         {
-            
-            //Destroy(deckButton);
-
-            //TODO if it is at the end then we need to access endGame option and hide pack   
-            print("More than 52 cards dealt");    
-
+            deckButton.GetComponent<Renderer>().enabled = false;
+            //print("More than 52 cards dealt");    
         }
         
     }    
