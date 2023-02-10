@@ -45,6 +45,10 @@ public class Solitaire : MonoBehaviour
 
     public void PlayCards()
     {
+
+        deckButton.GetComponent<Renderer>().enabled = true;
+        removedCards.Clear();
+        
         deckLocation = 0;
         cardDealt = 0;
         dealtCards = new List<string>();
@@ -52,7 +56,7 @@ public class Solitaire : MonoBehaviour
         deck = GenerateDeck();
         Shuffle(deck);
 
-        deckButton.GetComponent<Renderer>().enabled = true;
+
         
     }
 
