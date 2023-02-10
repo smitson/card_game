@@ -22,7 +22,7 @@ public class Solitaire : MonoBehaviour
 
     public List<string> dealtCards = new List<string>();
 
-    public Dictionary<string, int> removedCards = new Dictionary<string, int>();
+    public Stack removedCards = new Stack();
 
     public List<string> deck;
     public List<string> dealDeck;
@@ -60,6 +60,25 @@ public class Solitaire : MonoBehaviour
         
     }
 
+    public void UndoCards()
+    {
+
+        if (removedCards.Count > 1)
+        {
+        int listPosPop = (int)removedCards.Pop();
+        string cardNamePop = (removedCards.Pop() as string);
+        //TODO test this
+
+        print(listPosPop);
+        print(cardNamePop);
+        dealtCards.Insert(listPosPop,cardNamePop);
+        GameObject newCard = Instantiate(cardPrefab, new Vector3(0, 0, 0), Quaternion.identity, deckButton.transform);
+        newCard.name = cardNamePop;
+        MoveCards();
+        }
+        
+
+    }
 
     public static List<string> GenerateDeck()
     {

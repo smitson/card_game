@@ -21,10 +21,8 @@ public class UIButtons : MonoBehaviour
 
     public void Undo()
     {
-
-        //TODO create Undo process to be linekd to button
-        //  GameObject newCard = Instantiate(cardPrefab, new Vector3(xOffset, yOffset, zOffset), Quaternion.identity, deckButton.transform
-        //    newCard.name = card;
+        print("Undo");  
+        FindObjectOfType<Solitaire>().UndoCards();
 
     }
 

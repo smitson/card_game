@@ -155,7 +155,9 @@ public class UserInput : MonoBehaviour
             listPos = listPos - 1;
             cardName = solitaire.dealtCards[listPos];     
                         
-            solitaire.removedCards.Add(cardName,listPos);
+            solitaire.removedCards.Push(cardName);
+            solitaire.removedCards.Push(listPos);
+
             solitaire.dealtCards.Remove(cardName);
             
             Destroy(GameObject.Find(cardName));        
