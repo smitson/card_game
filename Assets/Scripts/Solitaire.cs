@@ -69,11 +69,11 @@ public class Solitaire : MonoBehaviour
         string cardNamePop = (removedCards.Pop() as string);
         //TODO test this
 
-        print(listPosPop);
-        print(cardNamePop);
+        Debug.Log(listPosPop);
+        Debug.Log(cardNamePop);
         dealtCards.Insert(listPosPop,cardNamePop);
-        GameObject newCard = Instantiate(cardPrefab, new Vector3(0, 0, 0), Quaternion.identity, deckButton.transform);
-        newCard.name = cardNamePop;
+        //GameObject newCard = Instantiate(cardPrefab, new Vector3(0, 0, 0), Quaternion.identity, deckButton.transform);
+        //newCard.name = cardNamePop;
         MoveCards();
         }
         
@@ -143,12 +143,14 @@ public class Solitaire : MonoBehaviour
 
             deckLocation++;
             cardDealt++;
+
+            if (cardDealt >= 52)
+            {
+                deckButton.GetComponent<Renderer>().enabled = false;        
+                Debug.Log("52 cards dealt");
+            }
         }
-        else
-        {
-            deckButton.GetComponent<Renderer>().enabled = false;
-            //print("More than 52 cards dealt");    
-        }
+        
         
     }    
 

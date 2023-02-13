@@ -50,6 +50,7 @@ public class UserInput : MonoBehaviour
             RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
             if (hit)
             {
+                
                 // what has been hit? Deck/Card/EmptySlot...
                 if (hit.collider.CompareTag("Deck"))
                 {
@@ -62,6 +63,16 @@ public class UserInput : MonoBehaviour
 
                     Card(hit.collider.gameObject);
                 }
+                else if (hit.collider.CompareTag("Reset"))
+                {
+                    Reset();
+                        
+                }
+                else if (hit.collider.CompareTag("Undo"))
+                {
+                    solitaire.UndoCards();
+
+                }
             }
         }
     }
@@ -69,7 +80,7 @@ public class UserInput : MonoBehaviour
     void Deck()
     {
         // deck click actions
-        print("Clicked on deck");
+        Debug.Log("Clicked on deck");
         //TODO dont deal if already dealt 52 cards or on 52nd card change pack so not visible
         solitaire.DealFromDeck();
         //TODO do we need this ?  slot1 = this.gameObject;
@@ -81,7 +92,7 @@ public class UserInput : MonoBehaviour
         // card click actions
         // if card is selected need to chck it against the second card clicked
         
-        print("Clicked on Card");
+        Debug.Log("Clicked on Card");
 
             if (slot1 == this.gameObject) // not null because we pass in this gameObject instead
             {
@@ -109,6 +120,18 @@ public class UserInput : MonoBehaviour
 
     }
 
+    void Reset()
+    {
+        //TODO have duplicated this need to look to remove 
+
+        UpdateSprite[] cards = FindObjectsOfType<UpdateSprite>();
+        foreach (UpdateSprite card in cards)
+        {
+            Destroy(card.gameObject);
+        }
+        FindObjectOfType<Solitaire>().PlayCards();
+    }
+
     bool Stackable(GameObject selected)
     {
         Selectable s1 = selected.GetComponent<Selectable>();
@@ -117,7 +140,7 @@ public class UserInput : MonoBehaviour
 
         posMid = solitaire.dealtCards.IndexOf(s1.name); 
         
-        if (posMid > 0 && posMid < (solitaire.dealtCards.Count -1)) 
+        if (posMid > 0 && posMid <= (solitaire.dealtCards.Count -1)) 
         {
             cardOne = solitaire.dealtCards[posMid - 1];
             cardTwo = solitaire.dealtCards[posMid + 1];
@@ -160,7 +183,7 @@ public class UserInput : MonoBehaviour
 
             solitaire.dealtCards.Remove(cardName);
             
-            Destroy(GameObject.Find(cardName));        
+            //TODO Destroy(GameObject.Find(cardName));
 
             solitaire.MoveCards();
         } 
@@ -175,7 +198,7 @@ public class UserInput : MonoBehaviour
     {
         if (timer < doubleClickTime && clickCount == 2)
         {
-            print("Double Click");
+            Debug.Log("Double Click");
             return true;
         }
         else
