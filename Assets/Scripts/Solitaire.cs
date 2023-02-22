@@ -72,8 +72,8 @@ public class Solitaire : MonoBehaviour
         Debug.Log(listPosPop);
         Debug.Log(cardNamePop);
         dealtCards.Insert(listPosPop,cardNamePop);
-        //GameObject newCard = Instantiate(cardPrefab, new Vector3(0, 0, 0), Quaternion.identity, deckButton.transform);
-        //newCard.name = cardNamePop;
+        GameObject newCard = Instantiate(cardPrefab, new Vector3(0, 0, 0), Quaternion.identity, deckButton.transform);
+        newCard.name = cardNamePop;
         MoveCards();
         }
         
