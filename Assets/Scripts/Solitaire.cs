@@ -12,6 +12,8 @@ public class Solitaire : MonoBehaviour
     public GameObject[] bottomPos;
     public GameObject[] topPos;
 
+    public Camera m_MainCamera;
+
     public static string[] suits = new string[] { "C", "D", "H", "S" };
     public static string[] values = new string[] { "A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K" };
 
@@ -67,7 +69,6 @@ public class Solitaire : MonoBehaviour
         {
         int listPosPop = (int)removedCards.Pop();
         string cardNamePop = (removedCards.Pop() as string);
-        //TODO test this
 
         Debug.Log(listPosPop);
         Debug.Log(cardNamePop);
@@ -180,6 +181,14 @@ public class Solitaire : MonoBehaviour
             }    
             
             yOffset = cardYLocations[yLoc];
+
+            if (yLoc > 3)
+            {
+                m_MainCamera = Camera.main;
+                m_MainCamera.transform.position = transform.position + new Vector3(0, 1, 0);
+                Debug.Log("yLoc");
+            }
+
             nextCard.transform.position = new Vector3( xOffset, yOffset, zOffset);
             
             count++;

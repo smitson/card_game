@@ -34,7 +34,7 @@ public class UIButtons : MonoBehaviour
 
     public void ResetScene()
     {
-        // find all the cards and remove them
+        //Remove all active cards 
         UpdateSprite[] cards = FindObjectsOfType<UpdateSprite>();
         foreach (UpdateSprite card in cards)
         {

@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class ScoreKeeper : MonoBehaviour
 {
-    public Selectable[] topStacks;
     public GameObject highScorePanel;
 
     // Start is called before the first frame update
