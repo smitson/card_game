@@ -73,3 +73,5 @@ crashlytics-build.properties
 .vscode/settings.json
 
 /Assets/600FlatButtonIcon
+
+.fake

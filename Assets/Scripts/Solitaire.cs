@@ -137,6 +137,14 @@ public class Solitaire : MonoBehaviour
             
             yOffset = cardYLocations[yLoc];
 
+            if (yLoc > 2)
+            {
+                //TODO will move down but does it on every card  
+
+                m_MainCamera = Camera.main;
+                m_MainCamera.transform.position = m_MainCamera.transform.position + new Vector3(0, yLoc * -0.3f, 0);
+                Debug.Log("yLoc");
+            }
 
             GameObject newCard = Instantiate(cardPrefab, new Vector3(xOffset, yOffset, zOffset), Quaternion.identity, deckButton.transform);
 
@@ -182,10 +190,12 @@ public class Solitaire : MonoBehaviour
             
             yOffset = cardYLocations[yLoc];
 
-            if (yLoc > 3)
+            if (yLoc > 2)
             {
+                //TODO will move down but does it on every card
+
                 m_MainCamera = Camera.main;
-                m_MainCamera.transform.position = transform.position + new Vector3(0, 1, 0);
+                m_MainCamera.transform.position = m_MainCamera.transform.position  + new Vector3(0, yLoc * -0.3f, 0);
                 Debug.Log("yLoc");
             }
 

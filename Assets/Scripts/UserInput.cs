@@ -81,7 +81,6 @@ public class UserInput : MonoBehaviour
     {
         // deck click actions
         Debug.Log("Clicked on deck");
-        //TODO dont deal if already dealt 52 cards or on 52nd card change pack so not visible
         solitaire.DealFromDeck();
         //TODO do we need this ?  slot1 = this.gameObject;
 
@@ -100,7 +99,6 @@ public class UserInput : MonoBehaviour
                 if (Stackable(selected))
                 {    
                     Stack(selected);
-                    //TODO if stacked remove the bottom card from the array 
                 }
                 else
                 {
@@ -153,8 +151,6 @@ public class UserInput : MonoBehaviour
 
     void Stack(GameObject selected)
     {
-        //TODO need to stack selected card on card one before
-
         Selectable s2 = selected.GetComponent<Selectable>();
         
         int listPos = 0;
