@@ -7,10 +7,6 @@ public class UserInput : MonoBehaviour
 {
     public GameObject slot1;
     private Solitaire solitaire;
-    private float timer;
-    private float doubleClickTime = 0.3f;
-    private int clickCount = 0;
-
 
     // Start is called before the first frame update
     void Start()
@@ -22,21 +18,6 @@ public class UserInput : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (clickCount == 1)
-        {
-            timer += Time.deltaTime;
-        }
-        if (clickCount == 3)
-        {
-            timer = 0;
-            clickCount = 1;
-        }
-        if (timer > doubleClickTime)
-        {
-            timer = 0;
-            clickCount = 0;
-        }
-
         GetMouseClick();
     }
 
@@ -44,7 +25,6 @@ public class UserInput : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0))
         {
-            clickCount++;
 
             Vector3 mousePosition = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, -10));
             RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
@@ -82,8 +62,6 @@ public class UserInput : MonoBehaviour
         // deck click actions
         Debug.Log("Clicked on deck");
         solitaire.DealFromDeck();
-        //TODO do we need this ?  slot1 = this.gameObject;
-
     }
     
     void Card(GameObject selected)
@@ -128,7 +106,7 @@ public class UserInput : MonoBehaviour
 
         posMid = solitaire.dealtCards.IndexOf(s1.name); 
         
-        if (posMid > 0 && posMid <= (solitaire.dealtCards.Count -1)) 
+        if (posMid > 0 && posMid < (solitaire.dealtCards.Count -1)) 
         {
             cardOne = solitaire.dealtCards[posMid - 1];
             cardTwo = solitaire.dealtCards[posMid + 1];

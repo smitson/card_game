@@ -33,6 +33,10 @@ public class Solitaire : MonoBehaviour
     private int deckLocation = 0;
     private int cardDealt = 0;
 
+    private int numRow = 0;
+
+    private float scrollDown = -0.8f;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -53,6 +57,7 @@ public class Solitaire : MonoBehaviour
         
         deckLocation = 0;
         cardDealt = 0;
+        numRow = 2;
         dealtCards = new List<string>();
 
         deck = GenerateDeck();
@@ -108,7 +113,16 @@ public class Solitaire : MonoBehaviour
         }
     }
 
- 
+    public void CheckRow(int yLoc)
+    {
+        if (yLoc > numRow)
+            {
+                numRow = yLoc;
+                m_MainCamera = Camera.main;
+                m_MainCamera.transform.position = m_MainCamera.transform.position + new Vector3(0, yLoc * scrollDown, 0);
+                Debug.Log("yLoc");
+            }
+    }
     public void DealFromDeck()
     {
         if (cardDealt < 52)
@@ -137,14 +151,7 @@ public class Solitaire : MonoBehaviour
             
             yOffset = cardYLocations[yLoc];
 
-            if (yLoc > 2)
-            {
-                //TODO will move down but does it on every card  
-
-                m_MainCamera = Camera.main;
-                m_MainCamera.transform.position = m_MainCamera.transform.position + new Vector3(0, yLoc * -0.3f, 0);
-                Debug.Log("yLoc");
-            }
+            CheckRow(yLoc);
 
             GameObject newCard = Instantiate(cardPrefab, new Vector3(xOffset, yOffset, zOffset), Quaternion.identity, deckButton.transform);
 
@@ -190,14 +197,7 @@ public class Solitaire : MonoBehaviour
             
             yOffset = cardYLocations[yLoc];
 
-            if (yLoc > 2)
-            {
-                //TODO will move down but does it on every card
-
-                m_MainCamera = Camera.main;
-                m_MainCamera.transform.position = m_MainCamera.transform.position  + new Vector3(0, yLoc * -0.3f, 0);
-                Debug.Log("yLoc");
-            }
+            CheckRow(yLoc);
 
             nextCard.transform.position = new Vector3( xOffset, yOffset, zOffset);
             
