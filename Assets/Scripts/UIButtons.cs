@@ -40,7 +40,7 @@ public class UIButtons : MonoBehaviour
         {
             Destroy(card.gameObject);
         }
-
+        FindObjectOfType<ScoreKeeper>().EndGame();
         // deal new cards
         FindObjectOfType<Solitaire>().PlayCards();
     }

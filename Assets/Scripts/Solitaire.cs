@@ -17,8 +17,11 @@ public class Solitaire : MonoBehaviour
     public static string[] suits = new string[] { "C", "D", "H", "S" };
     public static string[] values = new string[] { "A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K" };
 
-    public static float[] cardXEvenlocs = new float[] {-10.0f, -8.0f, -6.0f, -4.0f, -2.0f, 0.0f, 2.0f, 4.0f, 6.0f, 8.0f};
-    public static float[] cardXOddlocs = new float[] {8.0f, 6.0f, 4.0f, 2.0f, 0.0f, -2.0f, -4.0f, -6.0f, -8.0f,-10.0f};
+    public static float[] cardXEvenlocs = new float[] {-10.0f, -8.0f, -6.0f, -4.0f, -2.0f, 0.0f, 2.0f, 4.0f, 6.0f};
+    public static float[] cardXOddlocs = new float[] {6.0f, 4.0f, 2.0f, 0.0f, -2.0f, -4.0f, -6.0f, -8.0f,-10.0f};
+
+    // TODO 10 card per row public static float[] cardXEvenlocs = new float[] {-10.0f, -8.0f, -6.0f, -4.0f, -2.0f, 0.0f, 2.0f, 4.0f, 6.0f, 8.0f};
+    // public static float[] cardXOddlocs = new float[] {8.0f, 6.0f, 4.0f, 2.0f, 0.0f, -2.0f, -4.0f, -6.0f, -8.0f,-10.0f};
     
     public static float[] cardYLocations = new float[] {3.0f, 0.0f, -3.0f, -6.0f, -9.0f, -12.0f, -15.0f, -18.0f, -12.0f};
 
@@ -28,12 +31,12 @@ public class Solitaire : MonoBehaviour
 
     public List<string> deck;
     public List<string> dealDeck;
-
-    private int cardRow = 10;
+    [SerializeField]
+    private int cardRow = 9;
     private int deckLocation = 0;
     private int cardDealt = 0;
 
-    private int numRow = 0;
+    public int numRow = 0;
 
     private float scrollDown = -0.8f;
 
@@ -53,6 +56,11 @@ public class Solitaire : MonoBehaviour
     {
 
         deckButton.GetComponent<Renderer>().enabled = true;
+        Camera.main.transform.position = new Vector3(0f, 0f, -1.0f);
+        
+        float yAxis = Camera.main.transform.position[1];
+        Debug.Log("yAxis");
+        Debug.Log("yAxis = " + yAxis);
         removedCards.Clear();
         
         deckLocation = 0;
@@ -62,9 +70,6 @@ public class Solitaire : MonoBehaviour
 
         deck = GenerateDeck();
         Shuffle(deck);
-
-
-        
     }
 
     public void UndoCards()
@@ -83,7 +88,6 @@ public class Solitaire : MonoBehaviour
         MoveCards();
         }
         
-
     }
 
     public static List<string> GenerateDeck()
@@ -120,7 +124,6 @@ public class Solitaire : MonoBehaviour
                 numRow = yLoc;
                 m_MainCamera = Camera.main;
                 m_MainCamera.transform.position = m_MainCamera.transform.position + new Vector3(0, yLoc * scrollDown, 0);
-                Debug.Log("yLoc");
             }
     }
     public void DealFromDeck()
@@ -150,6 +153,7 @@ public class Solitaire : MonoBehaviour
             }    
             
             yOffset = cardYLocations[yLoc];
+            
 
             CheckRow(yLoc);
 

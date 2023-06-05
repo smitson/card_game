@@ -53,6 +53,12 @@ public class UserInput : MonoBehaviour
                     solitaire.UndoCards();
 
                 }
+                else if (hit.collider.CompareTag("Best Score"))
+                {
+                    //TODO add in best score panel 
+                    solitaire.UndoCards();
+
+                }
             }
         }
     }
