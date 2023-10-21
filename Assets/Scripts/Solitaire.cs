@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using TMPro;
 
 public class Solitaire : MonoBehaviour
 {
@@ -40,9 +41,50 @@ public class Solitaire : MonoBehaviour
 
     private float scrollDown = -0.8f;
 
+    public  int currentScore;
+    private int bestScore = 52;
+    public  int totalGames = 0;
+    private int scoreRange1to5 = 0;
+    private int scoreRange6to10 = 0;
+    private int scoreRange11to15 = 0;
+    private int scoreRange16to20 = 0;
+
+    private const string BestScoreKey = "BestScore";
+    private const string ScoreRangeKey1to5 = "ScoreRange1to5";
+    private const string ScoreRangeKey6to10 = "ScoreRange6to10";
+    private const string ScoreRangeKey11to15 = "ScoreRange11to15";
+    private const string ScoreRangeKey16to20 = "ScoreRange16to20";
+
+    private const string TotalGames = "TotalGames";
+
+    public TextMeshProUGUI displayScore;
+
+    public bool allCardsDealt;
+    public bool isGameOver;
+
+
+
+
     // Start is called before the first frame update
     void Start()
     {
+        displayScore = FindFirstObjectByType<TextMeshProUGUI>();
+        bestScore = 52;
+
+        if (PlayerPrefs.HasKey(BestScoreKey))
+        {
+            bestScore = PlayerPrefs.GetInt(BestScoreKey);
+            scoreRange1to5 = PlayerPrefs.GetInt(ScoreRangeKey1to5);
+            scoreRange6to10 = PlayerPrefs.GetInt(ScoreRangeKey6to10);
+            scoreRange11to15 = PlayerPrefs.GetInt(ScoreRangeKey11to15);
+            scoreRange16to20 = PlayerPrefs.GetInt(ScoreRangeKey16to20);
+            totalGames = PlayerPrefs.GetInt(TotalGames);
+        }
+
+        displayScore.text = bestScore.ToString();
+
+        isGameOver = false;
+
         PlayCards();
     }
 
@@ -50,6 +92,59 @@ public class Solitaire : MonoBehaviour
     void Update()
     {
         
+    }
+
+    void OnApplicationQuit()
+    {
+        EndGame();
+    }
+
+    public void updateScores()
+    {
+        // Update best score if current score is lower
+        if (allCardsDealt)
+        {
+            if (currentScore < bestScore)
+            {
+                bestScore = currentScore;
+                displayScore.text = bestScore.ToString();
+
+                // Save new best score
+                PlayerPrefs.SetInt(BestScoreKey, bestScore);
+
+
+            }
+
+            // Update score ranges
+            if (currentScore >= 1 && currentScore <= 5)
+            {
+                scoreRange1to5++;
+                PlayerPrefs.SetInt(ScoreRangeKey1to5, scoreRange1to5);
+            }
+            else if (currentScore >= 6 && currentScore <= 10)
+            {
+                scoreRange6to10++;
+                PlayerPrefs.SetInt(ScoreRangeKey6to10, scoreRange6to10);
+            }
+            else if (currentScore >= 11 && currentScore <= 15)
+            {
+                scoreRange11to15++;
+                PlayerPrefs.SetInt(ScoreRangeKey11to15, scoreRange11to15);
+            }
+            else if (currentScore >= 16 && currentScore <= 20)
+            {
+                scoreRange16to20++;
+                PlayerPrefs.SetInt(ScoreRangeKey16to20, scoreRange16to20);
+            }
+        }
+        PlayerPrefs.Save();
+    }
+
+    public void EndGame()
+    {
+        updateScores();
+        PlayerPrefs.SetInt(TotalGames, totalGames);
+        PlayerPrefs.Save();    
     }
 
     public void PlayCards()
@@ -67,6 +162,7 @@ public class Solitaire : MonoBehaviour
         cardDealt = 0;
         numRow = 2;
         dealtCards = new List<string>();
+        allCardsDealt = false;
 
         deck = GenerateDeck();
         Shuffle(deck);
@@ -77,15 +173,18 @@ public class Solitaire : MonoBehaviour
 
         if (removedCards.Count > 1)
         {
-        int listPosPop = (int)removedCards.Pop();
-        string cardNamePop = (removedCards.Pop() as string);
+            int listPosPop = (int)removedCards.Pop();
+            string cardNamePop = (removedCards.Pop() as string);
 
-        Debug.Log(listPosPop);
-        Debug.Log(cardNamePop);
-        dealtCards.Insert(listPosPop,cardNamePop);
-        GameObject newCard = Instantiate(cardPrefab, new Vector3(0, 0, 0), Quaternion.identity, deckButton.transform);
-        newCard.name = cardNamePop;
-        MoveCards();
+            Debug.Log(listPosPop);
+            Debug.Log(cardNamePop);
+            dealtCards.Insert(listPosPop,cardNamePop);
+            GameObject newCard = Instantiate(cardPrefab, new Vector3(0, 0, 0), Quaternion.identity, deckButton.transform);
+        
+            newCard.name = cardNamePop;
+        
+            currentScore = currentScore + 2;
+            MoveCards();
         }
         
     }
@@ -130,6 +229,12 @@ public class Solitaire : MonoBehaviour
     {
         if (cardDealt < 52)
         { 
+            if (cardDealt < 1)
+            {
+                totalGames++;
+                Debug.Log("new game");
+            }    
+
             string card; 
             int yLoc;
             int xLoc;
@@ -163,10 +268,12 @@ public class Solitaire : MonoBehaviour
 
             deckLocation++;
             cardDealt++;
+            currentScore++;
 
             if (cardDealt >= 52)
             {
-                deckButton.GetComponent<Renderer>().enabled = false;        
+                deckButton.GetComponent<Renderer>().enabled = false;
+                allCardsDealt = true;
                 Debug.Log("52 cards dealt");
             }
         }
@@ -181,6 +288,8 @@ public class Solitaire : MonoBehaviour
         float xOffset, yOffset, zOffset = 0.2f;
         int count = 0;
         deckLocation = 0;
+        currentScore--;
+
         GameObject nextCard;          
        
             

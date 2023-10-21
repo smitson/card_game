@@ -94,13 +94,21 @@ public class UserInput : MonoBehaviour
 
     void Reset()
     {
-        //TODO have duplicated this need to look to remove 
-
         UpdateSprite[] cards = FindObjectsOfType<UpdateSprite>();
         foreach (UpdateSprite card in cards)
         {
             Destroy(card.gameObject);
         }
+        if (cards.Length > 1)
+        {
+            if (solitaire.allCardsDealt)
+            {
+                solitaire.updateScores();
+            }
+
+            solitaire.totalGames++;
+        }
+
         FindObjectOfType<Solitaire>().PlayCards();
     }
 
