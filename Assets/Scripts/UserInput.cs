@@ -105,8 +105,6 @@ public class UserInput : MonoBehaviour
             {
                 solitaire.updateScores();
             }
-
-            solitaire.totalGames++;
         }
 
         FindObjectOfType<Solitaire>().PlayCards();

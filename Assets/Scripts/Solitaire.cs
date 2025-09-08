@@ -104,6 +104,9 @@ public class Solitaire : MonoBehaviour
         // Update best score if current score is lower
         if (allCardsDealt)
         {
+            // Increment total games when a game is completed
+            totalGames++;
+            
             if (currentScore < bestScore)
             {
                 bestScore = currentScore;
@@ -231,7 +234,6 @@ public class Solitaire : MonoBehaviour
         { 
             if (cardDealt < 1)
             {
-                totalGames++;
                 Debug.Log("new game");
             }    
 
