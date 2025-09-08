@@ -187,6 +187,7 @@ public class Solitaire : MonoBehaviour
         numRow = 2;
         dealtCards = new List<string>();
         allCardsDealt = false;
+        allCardsDealt = false;
 
         deck = GenerateDeck();
         Shuffle(deck);
@@ -316,6 +317,8 @@ public class Solitaire : MonoBehaviour
             Debug.Log("Dealt current score " + currentScore);
             if (cardDealt >= 52)
             {
+                deckButton.GetComponent<Renderer>().enabled = false;
+                allCardsDealt = true;
                 deckButton.GetComponent<Renderer>().enabled = false;
                 allCardsDealt = true;
                 Debug.Log("52 cards dealt");
