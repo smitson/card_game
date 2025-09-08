@@ -51,11 +51,11 @@ public class InputManager : MonoBehaviour
     }
 
     private void OnEnable() {
-        TouchControls.Enable();
+        if (TouchControls != null) TouchControls.Enable();
     }
 
     private void OnDisable() {
-        TouchControls.Disable();
+        if (TouchControls != null) TouchControls.Disable();
     }
 
     private void Start () {

@@ -1,7 +1,5 @@
-﻿using System.Collections;
+﻿using UnityEngine;
 using System.Collections.Generic;
-using UnityEngine;
-
 
 public class UIButtons : MonoBehaviour
 {
@@ -40,8 +38,9 @@ public class UIButtons : MonoBehaviour
         {
             Destroy(card.gameObject);
         }
-        FindObjectOfType<ScoreKeeper>().EndGame();
-        // deal new cards
+
+        //TODO Is this where we store the score ?
+     
         FindObjectOfType<Solitaire>().PlayCards();
     }
 }

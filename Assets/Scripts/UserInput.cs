@@ -7,6 +7,8 @@ public class UserInput : MonoBehaviour
 {
     public GameObject slot1;
     private Solitaire solitaire;
+    private RaycastHit2D hit;
+    private Vector3 mousePosition;
 
     // Start is called before the first frame update
     void Start()
@@ -23,47 +25,51 @@ public class UserInput : MonoBehaviour
 
     void GetMouseClick()
     {
-        if (Input.GetMouseButtonDown(0))
-        {
+     if (Input.GetMouseButtonDown(0))
+      {
 
-            Vector3 mousePosition = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, -10));
-            RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
-            if (hit)
-            {
-                
-                // what has been hit? Deck/Card/EmptySlot...
-                if (hit.collider.CompareTag("Deck"))
-                {
-                    //clicked deck
-                    Deck();
-                }
-                else if (hit.collider.CompareTag("Card"))
-                {
-                    // clicked card
+         mousePosition = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, -10));
+          hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
+          if (hit)
+          {
+             Debug.Log("hit " );
+// what has been hit? Deck/Card/EmptySlot...
+              if (hit.collider.CompareTag("Deck"))
+              {
+//clicked deck
+                  Deck();
+              }
+              else if (hit.collider.CompareTag("Card"))
+              {
+// clicked card
 
-                    Card(hit.collider.gameObject);
-                }
-                else if (hit.collider.CompareTag("Reset"))
-                {
-                    Reset();
-                        
-                }
-                else if (hit.collider.CompareTag("Undo"))
-                {
-                    solitaire.UndoCards();
+                 Card(hit.collider.gameObject);
+             }
+             else if (hit.collider.CompareTag("Reset"))
+             {
+                 Reset();
 
-                }
-                else if (hit.collider.CompareTag("Best Score"))
-                {
-                    //TODO add in best score panel 
-                    solitaire.UndoCards();
+             }
+             else if (hit.collider.CompareTag("Undo"))
+             {
+                 solitaire.UndoCards();
 
-                }
-            }
-        }
-    }
+             }
+             else if (hit.collider.CompareTag("Best Score"))
+             {
+//TODO add in best score panel 
+                 solitaire.UndoCards();
 
-    void Deck()
+             }
+         }
+         else
+         {
+             Debug.Log("not registering a hit");
+         }
+     }
+  }
+
+void Deck()
     {
         // deck click actions
         Debug.Log("Clicked on deck");
@@ -94,13 +100,21 @@ public class UserInput : MonoBehaviour
 
     void Reset()
     {
-        //TODO have duplicated this need to look to remove 
-
         UpdateSprite[] cards = FindObjectsOfType<UpdateSprite>();
         foreach (UpdateSprite card in cards)
         {
             Destroy(card.gameObject);
         }
+        if (cards.Length > 1)
+        {
+            if (solitaire.allCardsDealt)
+            {
+                solitaire.updateScores();
+            }
+
+            solitaire.totalGames++;
+        }
+
         FindObjectOfType<Solitaire>().PlayCards();
     }
 
@@ -149,7 +163,7 @@ public class UserInput : MonoBehaviour
             cardName = solitaire.dealtCards[listPos];     
                         
             solitaire.removedCards.Push(cardName);
-            solitaire.removedCards.Push(listPos);
+            solitaire.removedCards.Push(listPos.ToString());
 
             solitaire.dealtCards.Remove(cardName);
             
