@@ -256,6 +256,63 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
+--- !u!1 &165221425
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 165221427}
+  - component: {fileID: 165221426}
+  - component: {fileID: 165221428}
+  m_Layer: 0
+  m_Name: GameObject
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &165221426
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 165221425}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 35b42955e7d9c7e4a8bbcb4e37d8c657, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!4 &165221427
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 165221425}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 7
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &165221428
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 165221425}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c4315689e02c4e440b60fbe7f8534722, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &200023337
 GameObject:
   m_ObjectHideFlags: 0
@@ -389,6 +446,56 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
+--- !u!1 &248158822
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 248158824}
+  - component: {fileID: 248158823}
+  m_Layer: 0
+  m_Name: TouchManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &248158823
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 248158822}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e463a8155d0025e4e9c3c32744b89c68, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  dragThreshold: 50
+  showValidMoves: 1
+  validCardColor: {r: 0.5, g: 1, b: 0.5, a: 1}
+  selectedCardColor: {r: 1, g: 1, b: 0.5, a: 1}
+  enableCameraDrag: 1
+  cameraDragSpeed: 0.01
+--- !u!4 &248158824
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 248158822}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 8
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!850595691 &378056716
 LightingSettings:
   m_ObjectHideFlags: 0
@@ -671,6 +778,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 83e2adff9f63af24681f4f807e46a62b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  cardArea: {fileID: 0}
+  staticArea: {fileID: 0}
   cardFaces:
   - {fileID: 21300000, guid: 5edd54aed793c6345a5d8e3d0bb44b01, type: 3}
   - {fileID: 21300000, guid: d9a5ab15dace6b2469bb16712cae75af, type: 3}
@@ -740,6 +849,10 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  highScorePanel: {fileID: 0}
+  winText: {fileID: 0}
+  finalScoreText: {fileID: 0}
+  bestScoreTextPanel: {fileID: 0}
   m_MainCamera: {fileID: 0}
   dealtCards: []
   deck: []
@@ -749,6 +862,7 @@ MonoBehaviour:
   currentScore: 0
   totalGames: 0
   displayScore: {fileID: 0}
+  currentScoreText: {fileID: 0}
   allCardsDealt: 0
   isGameOver: 0
 --- !u!4 &1172259712
@@ -778,12 +892,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4f3b79943d5b8764da95b51217a3c5e0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  minimumDistance: 100
-  maximumTime: 5
-  minimumTime: 0.1
-  directionThreshold: 0.9
-  swipeUpAmount: 5
-  swipeDownAmount: -5
 --- !u!1 &1261193490
 GameObject:
   m_ObjectHideFlags: 0
