@@ -17,8 +17,8 @@ public class UpdateSprite : MonoBehaviour
     void Start()
     {
         List<string> deck = Solitaire.GenerateDeck();
-        solitaire = FindObjectOfType<Solitaire>();
-        userInput = FindObjectOfType<UserInput>();
+        solitaire = FindFirstObjectByType<Solitaire>();
+        userInput = FindFirstObjectByType<UserInput>();
 
         int i = 0;
         foreach (string card in deck)

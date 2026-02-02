@@ -9,98 +9,137 @@ public class UserInput : MonoBehaviour
     private Solitaire solitaire;
     private RaycastHit2D hit;
     private Vector3 mousePosition;
+    private Camera _mainCamera;
+    private InputManager inputManager;
 
     // Start is called before the first frame update
     void Start()
     {
-        solitaire = FindObjectOfType<Solitaire>();
+        solitaire = FindFirstObjectByType<Solitaire>();
         slot1 = this.gameObject;
+        _mainCamera = Camera.main;
+        inputManager = InputManager.Instance;
     }
 
     // Update is called once per frame
     void Update()
     {
+        // Fallback for mouse in Editor/Desktop using old Input API
         GetMouseClick();
+
+        // Android back button (Escape) maps to Undo
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            if (solitaire != null)
+            {
+                solitaire.UndoCards();
+            }
+        }
     }
 
+    void OnEnable()
+    {
+        if (inputManager == null)
+        {
+            inputManager = InputManager.Instance;
+        }
+        inputManager.OnStartTouch += OnStartTouch;
+    }
+
+    void OnDisable()
+    {
+        if (inputManager != null)
+        {
+            inputManager.OnStartTouch -= OnStartTouch;
+        }
+    }
     void GetMouseClick()
     {
-     if (Input.GetMouseButtonDown(0))
-      {
+        if (Input.GetMouseButtonDown(0))
+        {
+            Vector2 screenPos = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
+            ProcessPointerDown(screenPos);
+        }
+    }
 
-         mousePosition = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, -10));
-          hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
-          if (hit)
-          {
-             Debug.Log("hit " );
-// what has been hit? Deck/Card/EmptySlot...
-              if (hit.collider.CompareTag("Deck"))
-              {
-//clicked deck
-                  Deck();
-              }
-              else if (hit.collider.CompareTag("Card"))
-              {
-// clicked card
+    private void OnStartTouch(Vector2 screenPosition, float time)
+    {
+        ProcessPointerDown(screenPosition);
+    }
 
-                 Card(hit.collider.gameObject);
-             }
-             else if (hit.collider.CompareTag("Reset"))
-             {
-                 Reset();
+    private void ProcessPointerDown(Vector2 screenPosition)
+    {
+        if (_mainCamera == null)
+        {
+            _mainCamera = Camera.main;
+        }
 
-             }
-             else if (hit.collider.CompareTag("Undo"))
-             {
-                 solitaire.UndoCards();
+        mousePosition = _mainCamera.ScreenToWorldPoint(new Vector3(screenPosition.x, screenPosition.y, -10));
+        hit = Physics2D.Raycast(_mainCamera.ScreenToWorldPoint(screenPosition), Vector2.zero);
+        if (hit)
+        {
+            Debug.Log("hit ");
+            // what has been hit? Deck/Card/EmptySlot...
+            if (hit.collider.CompareTag("Deck"))
+            {
+                // clicked deck
+                Deck();
+            }
+            else if (hit.collider.CompareTag("Card"))
+            {
+                // clicked card
+                Card(hit.collider.gameObject);
+            }
+            else if (hit.collider.CompareTag("Reset"))
+            {
+                Reset();
+            }
+            else if (hit.collider.CompareTag("Undo"))
+            {
+                solitaire.UndoCards();
+            }
+            else if (hit.collider.CompareTag("Best Score"))
+            {
+                // TODO add in best score panel
+                // No undo here; reserved for high score panel actions
+            }
+        }
+        else
+        {
+            Debug.Log("not registering a hit");
+        }
+    }
 
-             }
-             else if (hit.collider.CompareTag("Best Score"))
-             {
-//TODO add in best score panel 
-                 solitaire.UndoCards();
-
-             }
-         }
-         else
-         {
-             Debug.Log("not registering a hit");
-         }
-     }
-  }
-
-void Deck()
+    void Deck()
     {
         // deck click actions
         Debug.Log("Clicked on deck");
         solitaire.DealFromDeck();
     }
-    
+
     void Card(GameObject selected)
     {
         // card click actions
-        // if card is selected need to chck it against the second card clicked
-        
+        // if card is selected need to check it against the second card clicked
         Debug.Log("Clicked on Card");
 
-            if (slot1 == this.gameObject) // not null because we pass in this gameObject instead
+        if (slot1 == this.gameObject) // not null because we pass in this gameObject instead
+        {
+            slot1 = selected;
+            if (Stackable(selected))
             {
-                slot1 = selected;
-                if (Stackable(selected))
-                {    
-                    Stack(selected);
-                }
-                else
-                {
-                    slot1 = this.gameObject;
-                }
-                
+                Stack(selected);
             }
+            else
+            {
+                slot1 = this.gameObject;
+            }
+        }
     }
 
     void Reset()
     {
-        UpdateSprite[] cards = FindObjectsOfType<UpdateSprite>();
+        UpdateSprite[] cards = FindObjectsByType<UpdateSprite>(FindObjectsSortMode.None);
         foreach (UpdateSprite card in cards)
         {
             Destroy(card.gameObject);
@@ -115,7 +154,7 @@ void Deck()
             solitaire.totalGames++;
         }
 
-        FindObjectOfType<Solitaire>().PlayCards();
+        solitaire.PlayCards();
     }
 
     bool Stackable(GameObject selected)

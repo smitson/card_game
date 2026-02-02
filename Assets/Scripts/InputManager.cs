@@ -21,7 +21,7 @@ public class InputManager : MonoBehaviour
         {
             if (_instance == null)
             {
-                _instance = FindObjectOfType<InputManager>();
+                    _instance = FindFirstObjectByType<InputManager>();
 
                 if (_instance == null)
                 {

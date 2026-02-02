@@ -4,11 +4,12 @@ using System.Collections.Generic;
 public class UIButtons : MonoBehaviour
 {
     public GameObject highScorePanel;
+    private Solitaire solitaire;
 
     // Start is called before the first frame update
     void Start()
     {
-        
+        solitaire = FindFirstObjectByType<Solitaire>();
     }
 
     // Update is called once per frame
@@ -20,7 +21,11 @@ public class UIButtons : MonoBehaviour
     public void Undo()
     {
         print("Undo");  
-        FindObjectOfType<Solitaire>().UndoCards();
+        if (solitaire == null)
+        {
+            solitaire = FindFirstObjectByType<Solitaire>();
+        }
+        solitaire.UndoCards();
 
     }
 
@@ -33,7 +38,7 @@ public class UIButtons : MonoBehaviour
     public void ResetScene()
     {
         //Remove all active cards 
-        UpdateSprite[] cards = FindObjectsOfType<UpdateSprite>();
+        UpdateSprite[] cards = FindObjectsByType<UpdateSprite>(FindObjectsSortMode.None);
         foreach (UpdateSprite card in cards)
         {
             Destroy(card.gameObject);
@@ -41,6 +46,10 @@ public class UIButtons : MonoBehaviour
 
         //TODO Is this where we store the score ?
      
-        FindObjectOfType<Solitaire>().PlayCards();
+        if (solitaire == null)
+        {
+            solitaire = FindFirstObjectByType<Solitaire>();
+        }
+        solitaire.PlayCards();
     }
 }

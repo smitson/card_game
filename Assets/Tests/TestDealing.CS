@@ -2,9 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using NUnit.Framework;
 using UnityEngine;
-using NUnit.Framework;
-using UnityEngine;
-using System.Collections.Generic;
 
 public class CardDealPatternTests
 {
@@ -37,13 +34,16 @@ public class CardDealPatternTests
             int row = i / CardsPerRow;
             int col = i % CardsPerRow;
 
-            if (row % 2 == 0)
+            // Only compare adjacent cards within bounds
+            bool hasNext = (i + 1) < cardPositions.Count && (col < CardsPerRow - 1);
+
+            if (row % 2 == 0 && hasNext)
             {
                 // Left-to-right rows: cards should increase left-to-right
                 Assert.Less(cardPositions[i].x, cardPositions[i + 1].x,
                     $"Expected left-to-right order in row {row}, card {i}.");
             }
-            else
+            else if (hasNext)
             {
                 // Right-to-left rows: cards should decrease right-to-left
                 Assert.Greater(cardPositions[i].x, cardPositions[i + 1].x,

@@ -15,6 +15,10 @@ public class Solitaire : MonoBehaviour
     public GameObject[] topPos;
 
     public Camera m_MainCamera;
+    private int scrollRowOffset = 0; // how many rows from top the view is scrolled
+    private const int VisibleRows = 5; // number of rows shown at once
+    private const float RowHeight = 3.0f; // spacing between rows
+    private float scrollWorldAccumulator = 0f; // accumulate partial world deltas between row steps
 
     public static string[] suits = new string[] { "C", "D", "H", "S" };
     public static string[] values = new string[] { "A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K" };
@@ -57,7 +61,8 @@ public class Solitaire : MonoBehaviour
 
     private const string TotalGames = "TotalGames";
 
-    public TextMeshProUGUI displayScore;
+    public TextMeshProUGUI displayScore; // live score
+    public TextMeshProUGUI bestScoreText; // best score display (optional)
 
     public bool allCardsDealt;
     public bool isGameOver;
@@ -65,6 +70,7 @@ public class Solitaire : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        m_MainCamera = Camera.main;
         // Find or create StaticArea parent (right side)
         GameObject staticAreaObj = GameObject.Find("StaticArea");
         if (staticAreaObj == null)
@@ -101,7 +107,11 @@ public class Solitaire : MonoBehaviour
             Debug.Log(" has bestScore + total games " + bestScore + " " + totalGames);
         }
 
-        displayScore.text = bestScore.ToString();
+        // Initialize best score UI if available
+        if (bestScoreText != null)
+        {
+            bestScoreText.text = bestScore.ToString();
+        }
 
         isGameOver = false;
 
@@ -130,11 +140,14 @@ public class Solitaire : MonoBehaviour
             if (currentScore < bestScore)
             {
                 bestScore = currentScore;
-                displayScore.text = bestScore.ToString();
                 Debug.Log("bestScore lower " + currentScore + " " + bestScore);
 
                 // Save new best score
                 PlayerPrefs.SetInt(BestScoreKey, bestScore);
+                if (bestScoreText != null)
+                {
+                    bestScoreText.text = bestScore.ToString();
+                }
 
 
             }
@@ -175,18 +188,32 @@ public class Solitaire : MonoBehaviour
     {
 
         deckButton.GetComponent<Renderer>().enabled = true;
-        Camera.main.transform.position = new Vector3(0f, 0f, -1.0f);
+        if (m_MainCamera == null)
+        {
+            m_MainCamera = Camera.main;
+        }
+        m_MainCamera.transform.position = new Vector3(0f, 0f, -1.0f);
         
-        float yAxis = Camera.main.transform.position[1];
+        float yAxis = m_MainCamera.transform.position[1];
         Debug.Log("yAxis");
         Debug.Log("yAxis = " + yAxis);
         removedCards.Clear();
+        
+        // Reset scoring for a fresh game: start at 52 and work down
+        currentScore = 52;
+        if (displayScore != null)
+        {
+            displayScore.text = currentScore.ToString();
+        }
         
         deckLocation = 0;
         cardDealt = 0;
         numRow = 2;
         dealtCards = new List<string>();
         allCardsDealt = false;
+        // reset scroll
+        scrollRowOffset = 0;
+        ApplyScroll();
 
         deck = GenerateDeck();
         Shuffle(deck);
@@ -203,11 +230,16 @@ public class Solitaire : MonoBehaviour
             Debug.Log(listPosPop);
             Debug.Log(cardNamePop);
             dealtCards.Insert(listPosPop, cardNamePop);
-            GameObject newCard = Instantiate(cardPrefab, new Vector3(0, 0, 0), Quaternion.identity, deckButton.transform);
+            GameObject newCard = Instantiate(cardPrefab, new Vector3(0, 0, 0), Quaternion.identity, cardArea);
 
             newCard.name = cardNamePop;
 
-            currentScore = currentScore + 2;
+            // Undo restores one card, increase score by 1
+            currentScore = currentScore + 1;
+            if (displayScore != null)
+            {
+                displayScore.text = currentScore.ToString();
+            }
             MoveCards();
         }
         
@@ -221,6 +253,10 @@ public class Solitaire : MonoBehaviour
         int count = 0;
         deckLocation = 0;
         currentScore--;
+        if (displayScore != null)
+        {
+            displayScore.text = currentScore.ToString();
+        }
         Debug.Log("Movecard current score " + currentScore );
 
         GameObject nextCard;          
@@ -243,13 +279,14 @@ public class Solitaire : MonoBehaviour
             
             yOffset = cardYLocations[yLoc];
 
-            CheckRow(yLoc);
-
             nextCard.transform.position = new Vector3( xOffset, yOffset, zOffset);
             
             count++;
             deckLocation++;
         }
+
+        // Clamp scroll if content is smaller than current scroll
+        ClampScrollToContent();
     }
 
     public static List<string> GenerateDeck()
@@ -308,12 +345,13 @@ public class Solitaire : MonoBehaviour
             }
             yOffset = cardYLocations[yLoc];
             // No scroll/area logic
-            GameObject newCard = Instantiate(cardPrefab, new Vector3(xOffset, yOffset, zOffset), Quaternion.identity, deckButton.transform);
+            GameObject newCard = Instantiate(cardPrefab, new Vector3(xOffset, yOffset, zOffset), Quaternion.identity, cardArea);
             newCard.name = card;
             deckLocation++;
             cardDealt++;
-            currentScore++;
             Debug.Log("Dealt current score " + currentScore);
+            // Ensure the newly dealt row is visible
+            EnsureRowVisible(yLoc);
             if (cardDealt >= 52)
             {
                 deckButton.GetComponent<Renderer>().enabled = false;
@@ -323,17 +361,103 @@ public class Solitaire : MonoBehaviour
         }
     }
 
-    public void CheckRow(int yLoc)
+    // Scroll management helpers
+    private int GetMaxRowIndex()
     {
-        // Move CardArea vertically to keep new cards in view
-        if (yLoc > 4) // Example: start moving after 5 rows
+        if (dealtCards == null || dealtCards.Count == 0) return 0;
+        return (dealtCards.Count - 1) / cardRow;
+    }
+
+    private int GetMaxScrollOffset()
+    {
+        int maxRow = GetMaxRowIndex();
+        int maxOffset = maxRow - (VisibleRows - 1);
+        return Mathf.Max(0, maxOffset);
+    }
+
+    private void ApplyScroll()
+    {
+        float scrollY = -(scrollRowOffset * RowHeight);
+        cardArea.position = new Vector3(cardArea.position.x, scrollY, cardArea.position.z);
+    }
+
+    private void ClampScrollToContent()
+    {
+        int maxOffset = GetMaxScrollOffset();
+        int clamped = Mathf.Clamp(scrollRowOffset, 0, maxOffset);
+        if (clamped != scrollRowOffset)
         {
-            float scrollOffset = -(yLoc - 4) * 3.0f; // Negative to move up, adjust 3.0f to match cardYLocations spacing
-            cardArea.position = new Vector3(cardArea.position.x, scrollOffset, cardArea.position.z);
+            scrollRowOffset = clamped;
+            ApplyScroll();
         }
-        else
+    }
+
+    public void ScrollBy(int deltaRows)
+    {
+        int maxOffset = GetMaxScrollOffset();
+        if (maxOffset == 0) return; // nothing to scroll
+        int next = Mathf.Clamp(scrollRowOffset + deltaRows, 0, maxOffset);
+        if (next != scrollRowOffset)
         {
-            cardArea.position = new Vector3(cardArea.position.x, 0f, cardArea.position.z);
+            scrollRowOffset = next;
+            ApplyScroll();
+        }
+    }
+
+    public void ScrollByWorldDelta(float worldDeltaY)
+    {
+        // Positive worldDeltaY means finger moved up; content should move up (earlier rows)
+        // Our ScrollBy(-rows) moves view to earlier rows; invert sign accordingly.
+        scrollWorldAccumulator += worldDeltaY;
+        int steps = 0;
+        if (scrollWorldAccumulator >= RowHeight)
+        {
+            steps = Mathf.FloorToInt(scrollWorldAccumulator / RowHeight);
+            scrollWorldAccumulator -= steps * RowHeight;
+        }
+        else if (scrollWorldAccumulator <= -RowHeight)
+        {
+            steps = Mathf.CeilToInt(scrollWorldAccumulator / RowHeight);
+            scrollWorldAccumulator -= steps * RowHeight;
+        }
+
+        if (steps != 0)
+        {
+            // Positive steps -> finger moved up a lot (positive worldDeltaY), so go to earlier rows: negative row offset
+            ScrollBy(-steps);
+        }
+
+        // If content can't scroll further, clear accumulator to avoid jitter
+        int maxOffset = GetMaxScrollOffset();
+        if (scrollRowOffset == 0 && scrollWorldAccumulator > 0)
+        {
+            scrollWorldAccumulator = 0f;
+        }
+        else if (scrollRowOffset == maxOffset && scrollWorldAccumulator < 0)
+        {
+            scrollWorldAccumulator = 0f;
+        }
+    }
+
+    private void EnsureRowVisible(int rowIndex)
+    {
+        int maxOffset = GetMaxScrollOffset();
+        int bottomVisible = scrollRowOffset + (VisibleRows - 1);
+        int newOffset = scrollRowOffset;
+
+        if (rowIndex > bottomVisible)
+        {
+            newOffset = Mathf.Min(rowIndex - (VisibleRows - 1), maxOffset);
+        }
+        else if (rowIndex < scrollRowOffset)
+        {
+            newOffset = Mathf.Max(rowIndex, 0);
+        }
+
+        if (newOffset != scrollRowOffset)
+        {
+            scrollRowOffset = newOffset;
+            ApplyScroll();
         }
     }
 }
