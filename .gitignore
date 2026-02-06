@@ -1,3 +1,51 @@
+# Unity project ignores
+
+# Core Unity-generated folders
+/Library/
+/Temp/
+/Logs/
+/UserSettings/
+/MemoryCaptures/
+
+# Build outputs
+/Build/
+/Builds/
+/bin/
+/obj/
+
+# IDE/editor caches
+/.vs/
+/.idea/
+.RiderInfo/
+.vsconfig
+.suo
+.user
+.userosscache
+.sln.docstates
+
+# VS Code workspace settings (keep if intentionally tracked)
+/.vscode/
+
+# Plastic SCM
+/.plastic/
+
+# Unity auto-generated files
+*.pidb
+*.pdb
+*.mdb
+*.svd
+*.userprefs
+*.stacktrace
+
+# Crash reports
+Crashes/
+
+# Addressables / AssetBundles (exclude local builds)
+/Assets/StreamingAssets/aa/*
+!/Assets/StreamingAssets/aa/README.md
+
+# Do NOT ignore .meta files or Assets/* source
+# Keep C# sources, scenes, prefabs, sprites, and meta files tracked.
 # This .gitignore file should be placed at the root of your Unity project directory
 #
 # Get latest from https://github.com/github/gitignore/blob/main/Unity.gitignore

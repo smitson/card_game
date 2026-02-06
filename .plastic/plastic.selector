@@ -1,4 +1,0 @@
-repository "card game wip@simon_unity849@cloud"
-  path "/"
-    br "/main"
-    co "/main"
