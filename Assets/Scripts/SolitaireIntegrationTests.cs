@@ -83,7 +83,7 @@ public class SolitaireIntegrationTests
     public IEnumerator Teardown()
     {
         // Destroy all test objects
-        GameObject[] allObjects = GameObject.FindObjectsOfType<GameObject>();
+        GameObject[] allObjects = GameObject.FindObjectsByType<GameObject>(FindObjectsSortMode.None);
         foreach (GameObject obj in allObjects)
         {
             Object.Destroy(obj);

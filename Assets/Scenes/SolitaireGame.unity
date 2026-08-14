@@ -744,8 +744,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1172259712}
   - component: {fileID: 1172259711}
-  - component: {fileID: 1172259710}
-  - component: {fileID: 1172259715}
   m_Layer: 0
   m_Name: SolitaireGame
   m_TagString: Untagged
@@ -753,19 +751,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1172259710
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1172259709}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f79a48af5fb5d0f42951c241848e3db1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  slot1: {fileID: 0}
 --- !u!114 &1172259711
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -880,18 +865,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1172259715
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1172259709}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4f3b79943d5b8764da95b51217a3c5e0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1261193490
 GameObject:
   m_ObjectHideFlags: 0

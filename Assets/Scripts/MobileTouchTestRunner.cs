@@ -31,8 +31,8 @@ public class MobileTouchTestRunner : MonoBehaviour
     IEnumerator RunTouchTests()
     {
         // Find components
-        touchInput = FindObjectOfType<MobileTouchInput>();
-        solitaire = FindObjectOfType<Solitaire>();
+        touchInput = FindFirstObjectByType<MobileTouchInput>();
+        solitaire = FindFirstObjectByType<Solitaire>();
 
         if (touchInput == null)
         {

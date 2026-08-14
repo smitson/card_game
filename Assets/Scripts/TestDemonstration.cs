@@ -84,7 +84,7 @@ public class TestDemonstration : MonoBehaviour
         LogToUI("Setting up test environment...");
 
         // Find or create Solitaire
-        solitaire = FindObjectOfType<Solitaire>();
+        solitaire = FindFirstObjectByType<Solitaire>();
         if (solitaire == null)
         {
             LogToUI("âŒ ERROR: Solitaire not found in scene!");

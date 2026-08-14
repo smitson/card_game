@@ -30,7 +30,7 @@ public class StandaloneTestRunner : MonoBehaviour
     IEnumerator RunFullTestSuite()
     {
         // Find Solitaire component
-        solitaire = FindObjectOfType<Solitaire>();
+        solitaire = FindFirstObjectByType<Solitaire>();
         
         if (solitaire == null)
         {

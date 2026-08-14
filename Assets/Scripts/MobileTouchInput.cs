@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 /// <summary>
 /// Mobile Touch Input System for Android
@@ -36,15 +37,29 @@ public class MobileTouchInput : MonoBehaviour
     private Vector2 touchStartPos;
     private Vector2 lastTouchPos;
     private bool isDragging = false;
-    private GameObject selectedCard = null;
     
     // Card highlighting
     private Dictionary<GameObject, SpriteRenderer> cardRenderers = new Dictionary<GameObject, SpriteRenderer>();
     private Dictionary<GameObject, Color> originalColors = new Dictionary<GameObject, Color>();
+    private Dictionary<GameObject, Coroutine> pulseCoroutines = new Dictionary<GameObject, Coroutine>();
+
+    [Header("Combo Settings")]
+    [Tooltip("Time window in seconds between matches to chain a combo")]
+    public float comboWindowSeconds = 2.5f;
+    public GameObject comboIndicatorPanel;
+    public Text comboText;
+
+    [Header("Android")]
+    [Tooltip("Optional quit-confirmation panel shown when back button is pressed during a game")]
+    public GameObject quitConfirmPanel;
+
+    private int comboCount = 0;
+    private float lastMatchTime = -999f;
+    private Coroutine comboDisplayCoroutine;
 
     void Start()
     {
-        solitaire = FindObjectOfType<Solitaire>();
+        solitaire = FindFirstObjectByType<Solitaire>();
         mainCamera = Camera.main;
         
         if (solitaire == null)
@@ -58,12 +73,13 @@ public class MobileTouchInput : MonoBehaviour
     void Update()
     {
         HandleTouchInput();
-        
-        // Update visual feedback for valid moves
-        if (showValidMoves && !solitaire.isGameOver)
+
+#if UNITY_ANDROID
+        if (Input.GetKeyDown(KeyCode.Escape))
         {
-            UpdateValidMoveHighlights();
+            HandleBackButton();
         }
+#endif
     }
 
     void HandleTouchInput()
@@ -100,7 +116,6 @@ public class MobileTouchInput : MonoBehaviour
                 HandleTap(Input.mousePosition);
             }
             isDragging = false;
-            selectedCard = null;
         }
     }
 
@@ -132,7 +147,6 @@ public class MobileTouchInput : MonoBehaviour
                     HandleTap(position);
                 }
                 isDragging = false;
-                selectedCard = null;
                 break;
         }
     }
@@ -188,10 +202,13 @@ public class MobileTouchInput : MonoBehaviour
     void TapDeck()
     {
         Debug.Log("MobileTouchInput: Dealing card from deck");
-        
+
         if (solitaire != null && !solitaire.isGameOver)
         {
             solitaire.DealFromDeck();
+            // Refresh valid move highlights after each deal
+            if (showValidMoves)
+                UpdateValidMoveHighlights();
         }
     }
 
@@ -204,13 +221,15 @@ public class MobileTouchInput : MonoBehaviour
         // Check if this card can be removed
         if (IsCardRemovable(card))
         {
+            TriggerHaptic(isHeavy: true);
+            AudioManager.Instance?.PlayMatch();
             RemoveCard(card);
         }
         else
         {
             Debug.Log($"Card {card.name} cannot be removed (not in valid position or no match)");
-            
-            // Visual feedback for invalid tap (shake card?)
+            TriggerHaptic(isHeavy: false);
+            AudioManager.Instance?.PlayInvalidTap();
             StartCoroutine(ShakeCard(card));
         }
     }
@@ -257,20 +276,42 @@ public class MobileTouchInput : MonoBehaviour
             
             // Remove from list
             solitaire.dealtCards.Remove(cardToRemove);
-            
-            // Destroy the GameObject
+
+            // Trigger combo tracking
+            TriggerCombo();
+
+            // Destroy / animate the removed card GameObject
             GameObject cardObj = GameObject.Find(cardToRemove);
             if (cardObj != null)
             {
-                // Optional: Add fade-out animation here
-                Destroy(cardObj);
+                CardAnimator animator = cardObj.GetComponent<CardAnimator>();
+                if (animator != null)
+                {
+                    // VFX before the animated removal
+                    VFXManager.Instance?.PlayMatchBurst(cardObj.transform.position);
+                    // Defer MoveCards until animation finishes
+                    animator.PlayRemoveAnimation(onComplete: () =>
+                    {
+                        solitaire.MoveCards();
+                        RefreshValidMoveHighlights();
+                    });
+                }
+                else
+                {
+                    VFXManager.Instance?.PlayMatchBurst(cardObj.transform.position);
+                    Destroy(cardObj);
+                    solitaire.MoveCards();
+                    RefreshValidMoveHighlights();
+                }
             }
-            
+            else
+            {
+                solitaire.MoveCards();
+                RefreshValidMoveHighlights();
+            }
+
             Debug.Log($"Removed card: {cardToRemove}");
-            
-            // Update card positions
-            solitaire.MoveCards();
-            
+
             // Clear highlighting
             ClearAllHighlights();
         }
@@ -280,20 +321,29 @@ public class MobileTouchInput : MonoBehaviour
     {
         // Clear previous highlights
         ClearAllHighlights();
-        
-        if (solitaire == null || solitaire.dealtCards == null) return;
-        
-        // Highlight all cards that can be removed
+
+        if (!showValidMoves || solitaire == null || solitaire.dealtCards == null || solitaire.isGameOver) return;
+
+        // Start pulsing coroutines for all removable cards
         for (int i = 1; i < solitaire.dealtCards.Count - 1; i++)
         {
             string cardName = solitaire.dealtCards[i];
             GameObject cardObj = GameObject.Find(cardName);
-            
+
             if (cardObj != null && IsCardAtIndexRemovable(i))
             {
                 HighlightCard(cardObj, validCardColor);
             }
         }
+    }
+
+    /// <summary>
+    /// Re-run highlight pass after a card removal or move (called after MoveCards completes).
+    /// </summary>
+    void RefreshValidMoveHighlights()
+    {
+        if (showValidMoves)
+            UpdateValidMoveHighlights();
     }
 
     bool IsCardAtIndexRemovable(int index)
@@ -312,35 +362,51 @@ public class MobileTouchInput : MonoBehaviour
         return suitMatch || valueMatch;
     }
 
-    void HighlightCard(GameObject card, Color color)
+    void HighlightCard(GameObject card, Color highlightColor)
     {
         SpriteRenderer renderer = card.GetComponent<SpriteRenderer>();
         if (renderer == null) return;
-        
-        // Store original color if not already stored
+
         if (!originalColors.ContainsKey(card))
-        {
             originalColors[card] = renderer.color;
-        }
-        
-        // Apply highlight color
-        renderer.color = color;
+
         cardRenderers[card] = renderer;
+
+        // Start a pulse coroutine if one isn't already running for this card
+        if (!pulseCoroutines.ContainsKey(card))
+            pulseCoroutines[card] = StartCoroutine(PulseCard(card, renderer, highlightColor));
+    }
+
+    IEnumerator PulseCard(GameObject card, SpriteRenderer renderer, Color highlightColor)
+    {
+        Color baseColor = originalColors.ContainsKey(card) ? originalColors[card] : Color.white;
+        float pulseSpeed = 2.5f; // Hz
+
+        while (card != null && renderer != null && cardRenderers.ContainsKey(card))
+        {
+            float t = (Mathf.Sin(Time.time * pulseSpeed * Mathf.PI * 2f) + 1f) * 0.5f;
+            renderer.color = Color.Lerp(baseColor, highlightColor, t * 0.75f);
+            yield return null;
+        }
     }
 
     void ClearAllHighlights()
     {
+        // Stop all running pulse coroutines
+        foreach (var kvp in pulseCoroutines)
+        {
+            if (kvp.Value != null)
+                StopCoroutine(kvp.Value);
+        }
+        pulseCoroutines.Clear();
+
+        // Restore original colors
         foreach (var kvp in cardRenderers)
         {
-            if (kvp.Key != null && kvp.Value != null)
-            {
-                if (originalColors.ContainsKey(kvp.Key))
-                {
-                    kvp.Value.color = originalColors[kvp.Key];
-                }
-            }
+            if (kvp.Key != null && kvp.Value != null && originalColors.ContainsKey(kvp.Key))
+                kvp.Value.color = originalColors[kvp.Key];
         }
-        
+
         cardRenderers.Clear();
         originalColors.Clear();
     }
@@ -371,8 +437,10 @@ public class MobileTouchInput : MonoBehaviour
     void ResetGame()
     {
         Debug.Log("MobileTouchInput: Reset button pressed");
-        
-        UIButtons uiButtons = FindObjectOfType<UIButtons>();
+        ResetCombo();
+        ClearAllHighlights();
+
+        UIButtons uiButtons = FindFirstObjectByType<UIButtons>();
         if (uiButtons != null)
         {
             uiButtons.ResetScene();
@@ -382,11 +450,13 @@ public class MobileTouchInput : MonoBehaviour
     void UndoMove()
     {
         Debug.Log("MobileTouchInput: Undo button pressed");
-        
+
         if (solitaire != null)
         {
             solitaire.UndoCards();
             ClearAllHighlights();
+            if (showValidMoves)
+                UpdateValidMoveHighlights();
         }
     }
 
@@ -405,8 +475,140 @@ public class MobileTouchInput : MonoBehaviour
         enableCameraDrag = enabled;
     }
 
+    // ---- Combo Tracking ----
+
+    void TriggerCombo()
+    {
+        float timeSinceLast = Time.time - lastMatchTime;
+        comboCount = timeSinceLast <= comboWindowSeconds ? comboCount + 1 : 1;
+        lastMatchTime = Time.time;
+
+        if (comboCount >= 2)
+            ShowComboIndicator(comboCount);
+    }
+
+    void ShowComboIndicator(int count)
+    {
+        if (comboIndicatorPanel == null || comboText == null) return;
+
+        if (comboDisplayCoroutine != null)
+            StopCoroutine(comboDisplayCoroutine);
+        comboDisplayCoroutine = StartCoroutine(AnimateComboIndicator(count));
+    }
+
+    IEnumerator AnimateComboIndicator(int count)
+    {
+        if (comboIndicatorPanel == null || comboText == null) yield break;
+
+        comboText.text = "COMBO x" + count + "!";
+        comboIndicatorPanel.SetActive(true);
+
+        // Pop-in: scale from 0 → 1.2 → 1
+        Transform panel = comboIndicatorPanel.transform;
+        panel.localScale = Vector3.zero;
+        float popDuration = 0.2f;
+        float elapsed = 0f;
+
+        while (elapsed < popDuration)
+        {
+            elapsed += Time.deltaTime;
+            float t = Mathf.Clamp01(elapsed / popDuration);
+            float scale = Mathf.Sin(t * Mathf.PI * 0.5f) * 1.25f;
+            panel.localScale = Vector3.one * Mathf.Min(scale, 1.2f);
+            yield return null;
+        }
+        panel.localScale = Vector3.one;
+
+        // Hold
+        yield return new WaitForSeconds(1.2f);
+
+        // Fade out via CanvasGroup
+        CanvasGroup cg = comboIndicatorPanel.GetComponent<CanvasGroup>();
+        if (cg == null) cg = comboIndicatorPanel.AddComponent<CanvasGroup>();
+
+        float fadeDuration = 0.3f;
+        elapsed = 0f;
+        while (elapsed < fadeDuration)
+        {
+            elapsed += Time.deltaTime;
+            cg.alpha = 1f - (elapsed / fadeDuration);
+            yield return null;
+        }
+
+        cg.alpha = 1f;
+        comboIndicatorPanel.SetActive(false);
+        comboDisplayCoroutine = null;
+    }
+
+    public void ResetCombo()
+    {
+        comboCount = 0;
+        lastMatchTime = -999f;
+        if (comboDisplayCoroutine != null)
+        {
+            StopCoroutine(comboDisplayCoroutine);
+            comboDisplayCoroutine = null;
+        }
+        if (comboIndicatorPanel != null)
+            comboIndicatorPanel.SetActive(false);
+    }
+
+    // ---- Haptic Feedback ----
+
+    void TriggerHaptic(bool isHeavy = false)
+    {
+#if UNITY_ANDROID && !UNITY_EDITOR
+        try
+        {
+            if (isHeavy)
+            {
+                using (AndroidJavaClass player = new AndroidJavaClass("com.unity3d.player.UnityPlayer"))
+                using (AndroidJavaObject activity = player.GetStatic<AndroidJavaObject>("currentActivity"))
+                using (AndroidJavaObject vibrator = activity.Call<AndroidJavaObject>("getSystemService", "vibrator"))
+                using (AndroidJavaClass vibrationEffect = new AndroidJavaClass("android.os.VibrationEffect"))
+                {
+                    AndroidJavaObject effect = vibrationEffect.CallStatic<AndroidJavaObject>(
+                        "createOneShot", 80L, 200);
+                    vibrator.Call("vibrate", effect);
+                }
+            }
+            else
+            {
+                Handheld.Vibrate();
+            }
+        }
+        catch (System.Exception)
+        {
+            Handheld.Vibrate(); // Fallback for older devices
+        }
+#endif
+    }
+
+    // ---- Android Back Button ----
+
+    void HandleBackButton()
+    {
+        if (solitaire != null && !solitaire.isGameOver && solitaire.allCardsDealt)
+        {
+            // Game is in progress — show quit confirmation
+            if (quitConfirmPanel != null)
+                quitConfirmPanel.SetActive(true);
+        }
+        else if (solitaire != null && solitaire.isGameOver)
+        {
+            // Game over panel visible — treat back as "Play Again"
+            UIButtons uiButtons = FindFirstObjectByType<UIButtons>();
+            uiButtons?.PlayAgain();
+        }
+        else
+        {
+            Application.Quit();
+        }
+    }
+
     void OnDisable()
     {
         ClearAllHighlights();
+        ResetCombo();
     }
 }

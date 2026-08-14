@@ -15,7 +15,7 @@ public class UpdateSprite : MonoBehaviour
     {
         // Get components
         spriteRenderer = GetComponent<SpriteRenderer>();
-        solitaire = FindObjectOfType<Solitaire>();
+        solitaire = FindFirstObjectByType<Solitaire>();
 
         if (solitaire != null && spriteRenderer != null)
         {

@@ -1,6 +1,7 @@
 using UnityEngine;
+using System.Collections;
 using System.Collections.Generic;
-using UnityEngine.UI; // Using standard Unity UI instead of TextMeshPro
+using UnityEngine.UI;
 
 public class Solitaire : MonoBehaviour
 {
@@ -16,6 +17,7 @@ public class Solitaire : MonoBehaviour
     
     // High Score Panel Reference
     public GameObject highScorePanel;
+    public RectTransform highScorePanelRect;
     public Text winText;
     public Text finalScoreText;
     public Text bestScoreTextPanel;
@@ -58,10 +60,16 @@ public class Solitaire : MonoBehaviour
     private const string TotalGames = "TotalGames";
 
     public Text displayScore;
-    public Text currentScoreText;
+    public AnimatedScoreCounter scoreCounter;
 
     public bool allCardsDealt;
     public bool isGameOver;
+
+    [Header("Auto-Deal at Game Start")]
+    [Tooltip("Stream all 52 cards onto the table automatically when a new game begins")]
+    public bool autoDealOnStart = false;
+    [Tooltip("Delay in seconds between each auto-dealt card (lower = faster stream)")]
+    public float autoDealDelay = 0.08f;
 
     // Start is called before the first frame update
     void Start()
@@ -116,17 +124,21 @@ public class Solitaire : MonoBehaviour
         }
 
         isGameOver = false;
-        PlayCards();
+        PlayCards(); // auto-deal is launched inside PlayCards()
+    }
+
+    private IEnumerator AutoDealSequence()
+    {
+        yield return new WaitForSeconds(0.3f);
+        while (cardDealt < 52 && !isGameOver)
+        {
+            DealFromDeck();
+            yield return new WaitForSeconds(autoDealDelay);
+        }
     }
 
     void Update()
     {
-        // Update current score display
-        if (currentScoreText != null)
-        {
-            currentScoreText.text = "Score: " + currentScore.ToString();
-        }
-        
         // Check for win/lose conditions after all cards dealt
         if (allCardsDealt && !isGameOver)
         {
@@ -198,6 +210,9 @@ public class Solitaire : MonoBehaviour
     {
         isGameOver = true;
         updateScores();
+        AudioManager.Instance?.PlayWinFanfare();
+        VFXManager.Instance?.PlayWinConfetti();
+        VFXManager.Instance?.PlayWinFlash();
         ShowHighScorePanel(true);
     }
 
@@ -208,11 +223,13 @@ public class Solitaire : MonoBehaviour
     {
         isGameOver = true;
         updateScores();
+        AudioManager.Instance?.PlayLoseSting();
+        VFXManager.Instance?.PlayLoseFlash();
         ShowHighScorePanel(false);
     }
 
     /// <summary>
-    /// Display the high score panel with results
+    /// Display the high score panel with a slide-in animation
     /// </summary>
     private void ShowHighScorePanel(bool won)
     {
@@ -222,9 +239,7 @@ public class Solitaire : MonoBehaviour
             return;
         }
 
-        highScorePanel.SetActive(true);
-
-        // Update win/lose text
+        // Populate text content before animating in
         if (winText != null)
         {
             if (won)
@@ -239,19 +254,53 @@ public class Solitaire : MonoBehaviour
             }
         }
 
-        // Update final score
         if (finalScoreText != null)
         {
             finalScoreText.text = "Final Score: " + currentScore;
         }
 
-        // Update best score on panel
         if (bestScoreTextPanel != null)
         {
             bestScoreTextPanel.text = "Best Score: " + bestScore;
         }
 
+        StartCoroutine(AnimatePanelIn());
         Debug.Log("High Score Panel Shown - Won: " + won + " Score: " + currentScore);
+    }
+
+    private IEnumerator AnimatePanelIn()
+    {
+        // If RectTransform not assigned, fall back to instant show
+        if (highScorePanelRect == null)
+        {
+            highScorePanel.SetActive(true);
+            yield break;
+        }
+
+        // Start panel off-screen below
+        highScorePanelRect.anchoredPosition = new Vector2(0f, -Screen.height);
+        highScorePanel.SetActive(true);
+
+        float duration = 0.45f;
+        float elapsed = 0f;
+        Vector2 startPos = new Vector2(0f, -Screen.height);
+        Vector2 endPos = Vector2.zero;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float t = Mathf.Clamp01(elapsed / duration);
+
+            // EaseOutBack — overshoots slightly then settles
+            float overshoot = 1.70158f;
+            float tBack = t - 1f;
+            float eased = (tBack * tBack * ((overshoot + 1f) * tBack + overshoot) + 1f);
+
+            highScorePanelRect.anchoredPosition = Vector2.Lerp(startPos, endPos, eased);
+            yield return null;
+        }
+
+        highScorePanelRect.anchoredPosition = endPos;
     }
 
     public void updateScores()
@@ -320,11 +369,16 @@ public class Solitaire : MonoBehaviour
         dealtCards = new List<string>();
         allCardsDealt = false;
         isGameOver = false;
+        scoreCounter?.SetScoreImmediate(0);
 
         deck = GenerateDeck();
         Shuffle(deck);
 
         Debug.Log("New game started!");
+
+        // Launch auto-deal sequence for play-again resets as well as initial Start()
+        if (autoDealOnStart)
+            StartCoroutine(AutoDealSequence());
     }
 
     public void UndoCards()
@@ -335,12 +389,16 @@ public class Solitaire : MonoBehaviour
             string cardNamePop = (removedCards.Pop() as string);
 
             Debug.Log("Undo - Position: " + listPosPop + " Card: " + cardNamePop);
+            AudioManager.Instance?.PlayUndo();
             dealtCards.Insert(listPosPop, cardNamePop);
-            GameObject newCard = Instantiate(cardPrefab, new Vector3(0, 0, 0), Quaternion.identity, deckButton.transform);
+            // Spawn at deck position; MoveCards() will animate it to its grid slot via CardAnimator
+            Vector3 deckSpawn = deckButton != null ? deckButton.transform.position : Vector3.zero;
+            GameObject newCard = Instantiate(cardPrefab, deckSpawn, Quaternion.identity, cardArea);
 
             newCard.name = cardNamePop;
 
             currentScore = currentScore + 2; // Penalty for undo
+            scoreCounter?.UpdateScore(currentScore);
             MoveCards();
         }
     }
@@ -353,6 +411,7 @@ public class Solitaire : MonoBehaviour
         int count = 0;
         deckLocation = 0;
         currentScore--; // Reduce score for successful move
+        scoreCounter?.UpdateScore(currentScore);
 
         Debug.Log("MoveCards - Current score: " + currentScore);
 
@@ -383,7 +442,12 @@ public class Solitaire : MonoBehaviour
 
             CheckRow(yLoc);
 
-            nextCard.transform.position = new Vector3(xOffset, yOffset, zOffset);
+            Vector3 targetPos = new Vector3(xOffset, yOffset, zOffset);
+            CardAnimator cardAnim = nextCard.GetComponent<CardAnimator>();
+            if (cardAnim != null)
+                cardAnim.AnimateTo(targetPos, count * 0.02f);
+            else
+                nextCard.transform.position = targetPos;
 
             count++;
             deckLocation++;
@@ -449,13 +513,24 @@ public class Solitaire : MonoBehaviour
             
             yOffset = cardYLocations[yLoc];
             
-            GameObject newCard = Instantiate(cardPrefab, new Vector3(xOffset, yOffset, zOffset), Quaternion.identity, deckButton.transform);
+            // Spawn at deck position; CardAnimator will fly it to the grid slot
+            Vector3 deckPos = deckButton != null ? deckButton.transform.position : Vector3.zero;
+            GameObject newCard = Instantiate(cardPrefab, deckPos, Quaternion.identity, cardArea);
             newCard.name = card;
-            
+
+            // Animate card flying from deck to grid position with a cascade stagger
+            CardAnimator cardAnimator = newCard.GetComponent<CardAnimator>();
+            if (cardAnimator != null)
+                cardAnimator.PlayDealAnimation(new Vector3(xOffset, yOffset, zOffset), cardDealt * 0.05f);
+            else
+                newCard.transform.position = new Vector3(xOffset, yOffset, zOffset);
+
             deckLocation++;
             cardDealt++;
             currentScore++;
             
+            AudioManager.Instance?.PlayCardFlip();
+            scoreCounter?.UpdateScore(currentScore);
             Debug.Log("Dealt card: " + card + " | Current score: " + currentScore);
             
             if (cardDealt >= 52)
