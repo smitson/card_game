@@ -744,6 +744,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1172259712}
   - component: {fileID: 1172259711}
+  - component: {fileID: 1172259720}
   m_Layer: 0
   m_Name: SolitaireGame
   m_TagString: Untagged
@@ -850,6 +851,19 @@ MonoBehaviour:
   currentScoreText: {fileID: 0}
   allCardsDealt: 0
   isGameOver: 0
+--- !u!114 &1172259720
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1172259709}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6938a4c5ec1ad0e4a81a0b171926b5f7, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+  highScorePanel: {fileID: 0}
 --- !u!4 &1172259712
 Transform:
   m_ObjectHideFlags: 0
@@ -962,8 +976,7 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 2131076929}
+  m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -1172,12 +1185,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2131076928}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -6, y: 3, z: 0}
+  m_LocalPosition: {x: 9.599976, y: 4, z: 0}
   m_LocalScale: {x: 0.39999998, y: 0.39999998, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1910757661}
-  m_RootOrder: 0
+  m_Father: {fileID: 0}
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &2131076930
 SpriteRenderer:
