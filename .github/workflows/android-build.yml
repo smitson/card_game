@@ -1,0 +1,98 @@
+name: Android build
+
+# Push to master  -> test APK (installable on any Android phone)
+# Manual run      -> choose APK or AAB (AAB is what Google Play takes)
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'Assets/**'
+      - 'Packages/**'
+      - 'ProjectSettings/**'
+      - '.github/workflows/android-build.yml'
+  workflow_dispatch:
+    inputs:
+      build_type:
+        description: 'apk = test install on a phone, aab = Google Play upload'
+        type: choice
+        options: [apk, aab]
+        default: apk
+
+concurrency:
+  group: android-build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build ${{ inputs.build_type || 'apk' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      BUILD_TYPE: ${{ inputs.build_type || 'apk' }}
+      HAS_KEYSTORE: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' }}
+    steps:
+      - name: Check secrets
+        run: |
+          if [ -z "${{ secrets.UNITY_LICENSE }}" ] || [ -z "${{ secrets.UNITY_EMAIL }}" ] || [ -z "${{ secrets.UNITY_PASSWORD }}" ]; then
+            echo "::error::Add UNITY_LICENSE, UNITY_EMAIL and UNITY_PASSWORD under Settings > Secrets and variables > Actions."
+            exit 1
+          fi
+          if [ "$BUILD_TYPE" = "aab" ] && [ "$HAS_KEYSTORE" != "true" ]; then
+            echo "::error::A Google Play AAB must be signed with your upload key. Add the ANDROID_KEYSTORE_* secrets first."
+            exit 1
+          fi
+          if [ "$HAS_KEYSTORE" != "true" ]; then
+            echo "::notice::No keystore secrets set, so this APK is debug-signed. Fine for testing on your own phone."
+          fi
+
+      # The Unity Android image is large; the default runner is short of disk space.
+      - name: Free disk space
+        uses: jlumbroso/free-disk-space@v1.3.1
+        with:
+          tool-cache: false
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: false
+          docker-images: true
+          swap-storage: false
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Cache Unity Library folder
+        uses: actions/cache@v4
+        with:
+          path: Library
+          key: Library-Android-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
+          restore-keys: |
+            Library-Android-
+
+      - name: Build with Unity
+        uses: game-ci/unity-builder@v5
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          targetPlatform: Android
+          buildName: GrandmasSolitaire
+          # Keep the version name from Player Settings (1.0.x); bump the
+          # Play version code on every run so uploads never clash.
+          versioning: None
+          androidVersionCode: ${{ 100 + github.run_number }}
+          androidExportType: ${{ env.BUILD_TYPE == 'aab' && 'androidAppBundle' || 'androidPackage' }}
+          androidKeystoreName: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' && 'upload.keystore' || '' }}
+          androidKeystoreBase64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          androidKeystorePass: ${{ secrets.ANDROID_KEYSTORE_PASS }}
+          androidKeyaliasName: ${{ secrets.ANDROID_KEYALIAS_NAME }}
+          androidKeyaliasPass: ${{ secrets.ANDROID_KEYALIAS_PASS }}
+
+      - name: Upload build
+        uses: actions/upload-artifact@v4
+        with:
+          name: GrandmasSolitaire-${{ env.BUILD_TYPE }}-${{ github.run_number }}
+          path: build/Android
+          retention-days: 30
