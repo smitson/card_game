@@ -123,3 +123,7 @@ crashlytics-build.properties
 /Assets/600FlatButtonIcon
 
 .fake
+# Signing keys and CI build output (never commit keys)
+*.keystore
+*.jks
+/build/
